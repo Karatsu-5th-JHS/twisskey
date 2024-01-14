@@ -1,0 +1,424 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:blur/blur.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mfm/mfm.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:twisskey/api/renote.dart';
+import 'package:twisskey/main.dart';
+import 'package:twisskey/newTweet.dart';
+
+import 'package:http/http.dart' as http;
+import 'package:twisskey/pages/notion.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:timeago/timeago.dart' as timeago;
+
+class TimelinePage extends StatefulWidget {
+  const TimelinePage({Key? key}) : super(key: key);
+
+  @override
+  State<TimelinePage> createState() => _TimeLinePage();
+}
+
+class _TimeLinePage extends State<TimelinePage> {
+  var firstLoaded = false;
+  Map<String,String> emojiList = {};
+  final focusNode = FocusNode();
+  newTweet nt = const newTweet();
+
+  @override
+  void initState() {
+    super.initState();
+    loadEmoji();
+    _timelineFuture = _fetchTimeline();
+  }
+
+  late Future<dynamic> _timelineFuture;
+
+  Future loadEmoji() async{
+    emojiList = await getEmoji();
+  }
+
+  Future<dynamic> _fetchTimeline() async {
+    var token = await getToken();
+    var host = await getHost();
+    final Uri uri = Uri.parse("https://$host/api/notes/timeline");
+    Map<String, String> headers = {'content-type': 'application/json'};
+    final response = await http.post(
+        uri, headers: headers, body: json.encode({"i": token, "limit": 100}));
+    final String res = response.body;
+    if (kDebugMode) {
+      print("Request Timeline: $res");
+    }
+    dynamic dj = jsonDecode(res);
+    /*if((dj["error"]?.isEmpty ?? true) == false){
+      print("logout");
+      logout();
+    }*/
+    return dj;
+  }
+
+  //絵文字の更新 Update emojis
+  void updateEmojisFromServer() {
+    //super.didChangeDependencies();
+    Future(() async {
+      String? host;
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("絵文字DL元のサーバーURLを入力"),
+          content: TextFormField(
+            onFieldSubmitted: (data) {
+              host = data;
+              Navigator.of(context).pop();
+            },
+            decoration: const InputDecoration(
+                hintText:
+                "Please input misskey server host (such as misskey.io) to fetch emojis."),
+          ),
+        ),
+      );
+      if (host == null) return;
+
+      final response = await http.get(
+          Uri(scheme: "https", host: host, pathSegments: ["api", "emojis"]));
+      setState(() {
+        emojiList.addAll(Map.fromEntries(
+            (jsonDecode(response.body)["emojis"] as List)
+                .map((e) => MapEntry(e["name"] as String, e["url"] as String))));
+        focusNode.requestFocus();
+      });
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString("emojis", jsonEncode(emojiList));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Row(children: [
+            Image(
+                image: AssetImage('asset/tkngh.png'), width: 20, height: 20),
+            Text("TKNGH")
+          ],),
+          actions: [IconButton(
+            icon: const Icon(Icons.download_for_offline_outlined),
+            tooltip: 'Cache emojis from instances.',
+            onPressed: () {
+              updateEmojisFromServer();
+            },
+          )],
+        ),
+
+        drawer: Drawer(
+          child: ListView(
+            children: <Widget>[
+              const DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Text('Drawer Header'),
+              ),
+              ListTile(
+                title: const Text('Configurations'),
+                onTap: () {
+                  // Do something
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Logout'),
+                onTap: () {
+                  // Do something
+                  logout();
+                },
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: Transform.scale(
+          scale: 1.2,
+            child: FloatingActionButton(
+              onPressed: () async {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context)=>const newTweet())
+                );
+                setState(() {
+                  _timelineFuture = _fetchTimeline();
+                });
+              },
+              shape: const StadiumBorder(),
+              backgroundColor: const Color.fromRGBO(150, 191, 235, 1),
+              foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
+              child: const Icon(Icons.add),
+            )
+        ),
+        bottomNavigationBar: BottomAppBar(child: Center(child: Padding( padding: EdgeInsets.symmetric(horizontal: 1.0),
+        child:Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            IconButton(onPressed: (){print("pushed home");}, icon: Icon(Icons.home)),
+            IconButton(onPressed: (){print("pushed search");}, icon: Icon(Icons.search)),
+            IconButton(onPressed: (){
+              Navigator.push(context,MaterialPageRoute(builder: (context)=>const notion()));
+            }, icon: Icon(Icons.notifications)),
+            IconButton(onPressed: (){print("pushed messaging");}, icon: Icon(Icons.mail)),
+            IconButton(onPressed: (){print("pushed other");}, icon: Icon(Icons.menu))
+          ],
+        ))),),
+        body: RefreshIndicator(
+            onRefresh: () async {
+              setState(() {
+                loadEmoji();
+                _timelineFuture = _fetchTimeline();
+              });
+            },
+            child: FutureBuilder<dynamic>(
+                future: _timelineFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.hasData) {
+                      firstLoaded = true;
+                      return ListView.separated(
+                          itemCount: snapshot.data!.length,
+                          separatorBuilder: (BuildContext context, int index) => Divider(color: Colors.grey.shade400,),
+                          itemBuilder: (context, index){
+                            var feed = snapshot.data![index];
+                            if(feed == null){
+                              exit(0);
+                            }
+                            var Renote = "";
+                            if(feed["text"] == null){
+                              if((!(feed["renoteId"]?.isEmpty ?? true)) && (feed["fileids"]?.isEmpty ?? true)) {
+                                Renote = feed["user"]["name"] + "さんがRenoteしました";
+                                feed = feed["renote"];
+                                if(feed["text"] == null){
+                                  feed["text"] = null;
+                                }
+                              }else{
+                                feed["text"] = null;
+                              }
+                            }
+                            final text = feed["text"];
+                            final author = feed["user"];
+                            final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
+                            var instance = "";
+                            if(feed["user"]["host"] != null){
+                              instance = '@${feed["user"]["host"]}';
+                            }
+                            if(author["name"]==null){
+                              author["name"] = "";
+                            }
+                            return Column(children: [
+                              InkWell(
+                                onTap: () => print('Tapped!'),
+                                child: Container(
+                                    padding: const EdgeInsets.only(left: 8.0,bottom: 8.0,right:8.0),
+                                    child: Column(
+                                        children:[
+                                          Text(Renote, style: const TextStyle(color: Colors.green)),
+                                          Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              CircleAvatar(
+                                                backgroundImage: NetworkImage(author['avatarUrl']),
+                                                radius: 24,
+                                              ),
+                                              const SizedBox(width: 8.0),
+                                              Flexible(
+                                                child: Container(
+                                                    child: Column(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                        children:[
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                            MainAxisAlignment. spaceAround,
+                                                            children: [
+                                                              Flexible(
+                                                                child: Mfm(
+                                                                    mfmText: "${"**" + author["name"]}**",
+                                                                    emojiBuilder: (context, emoji, style) {
+                                                                      final emojiData = emojiList[emoji];
+                                                                      if (emojiData == null) {
+                                                                        return Text.rich(TextSpan(text: emoji, style: style));
+                                                                      } else {
+                                                                        // show emojis if emoji data found
+                                                                        return Image.network(
+                                                                          emojiData,
+                                                                          height: (style?.fontSize ?? 1) * 2,
+                                                                        );
+                                                                      }
+                                                                    })
+                                                                  /*Text(
+                                                                  author['name'],
+                                                                  overflow: TextOverflow.ellipsis,
+                                                                  style:
+                                                                  const TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold),
+                                                                ),*/
+                                                              ),
+                                                              Flexible(
+                                                                child: Text(
+                                                                  '@${author['username']}$instance',
+                                                                  overflow: TextOverflow.ellipsis,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                timeago.format(createdAt, locale: "ja"),
+                                                                style: const TextStyle(fontSize: 12.0),
+                                                                overflow: TextOverflow.clip,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const SizedBox(height: 10.0),
+                                                          /*Text(text,
+                                                style: const TextStyle(fontSize: 15.0)),*/
+                                                          checkImageOrText(text, feed["files"]),
+                                                          Row(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                            children: [
+                                                              TextButton(onPressed: ()=>{print("reply pressed")}, child: const Icon(Icons.reply)),
+                                                              TextButton(onPressed: () async {
+                                                                doRenote().renote(feed["id"]);
+                                                                Fluttertoast.showToast(msg: "リノートしました",fontSize: 18);
+                                                                await Future.delayed(Duration(milliseconds: 100), ()
+                                                                {
+                                                                  setState(() {
+                                                                    _timelineFuture =
+                                                                        _fetchTimeline();
+                                                                  });
+                                                                });
+                                                                }
+                                                              ,child: const Icon(Icons.repeat),),
+                                                              TextButton(onPressed: ()=>{print("reaction Pressed")},child: const Icon(Icons.add)),
+                                                              TextButton(onPressed: ()=>{print("moreMenu Pressed")},child: const Icon(Icons.more_horiz))
+                                                            ]
+                                                          ),
+                                                        ],
+                                                    )
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ])),
+                              ),
+                              const Divider(height: 1, thickness: 1, color: Colors.white12)
+                            ]);
+                          }
+                      );
+                    }else {
+                      //print(getHost());
+                      return const Center(child: Text('タイムラインの取得に失敗しました'));
+                    }
+                  } else {
+                    if(firstLoaded != true) {
+                      return const Center(child: Text("読み込み中です"));
+                    }else{
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  }
+                }
+            )
+        )
+    );
+  }
+  Widget checkImageOrText(text, image){
+    print(image);
+    if(text != null){
+      if(!image.isEmpty){
+        return Column(
+          children: [
+            Mfm(
+              mfmText: text,
+              linkTap: (url) {
+                launchUrl(Uri.parse(url));
+              },
+              emojiBuilder: (context, emoji, style) {
+                final emojiData = emojiList[emoji];
+                if (emojiData == null) {
+                  return Text.rich(TextSpan(text: emoji, style: style));
+                } else {
+                  // show emojis if emoji data found
+                  return Image.network(
+                    emojiData,
+                    height: (style?.fontSize ?? 1) * 2,
+                  );
+                }
+              },
+              searchTap: (content){
+                content = content.replaceAll(" ", "+");
+                print("Search tapped! content=>search?q=$content");
+                launchUrl(Uri.parse("https://www.google.com/search?q=$content"));
+              },
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for(var file in image)
+                    isNeedBlur(file)
+                ],
+              ),
+            )
+          ],
+        );
+      }
+      return Mfm(
+        mfmText: text,
+        linkTap: (url) {
+          launchUrl(Uri.parse(url));
+        },
+        emojiBuilder: (context, emoji, style) {
+          final emojiData = emojiList[emoji];
+          if (emojiData == null) {
+            return Text.rich(TextSpan(text: emoji, style: style));
+          } else {
+            // show emojis if emoji data found
+            return Image.network(
+              emojiData,
+              height: (style?.fontSize ?? 1) * 2,
+            );
+          }
+        },
+        searchTap: (content){
+          content = content.replaceAll(" ", "+");
+          print("Search tapped! content=>search?q=$content");
+          launchUrl(Uri.parse("https://www.google.com/search?q=$content"));
+        },
+      );
+    }else{
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for(var file in image)
+              isNeedBlur(file)
+          ],
+        ),
+      );
+    }
+  }
+  Widget isNeedBlur(sensitiveFlug){
+    var image = sensitiveFlug["url"];
+    var sf = sensitiveFlug["isSensitive"];
+    print("isSensitive:$sf");
+    if(sf == true){
+      print("Blur skip");
+      return Blur(
+        child: SizedBox(
+          height: 300,
+          width: 300,
+          child: Image.network(image,width: 300,height: 300),
+        ),
+      );
+    }else{
+      return Image.network(image,width: 300,height: 300);
+    }
+  }
+}
