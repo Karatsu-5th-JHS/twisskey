@@ -94,7 +94,7 @@ class _TimeLinePage extends State<TimelinePage> {
         focusNode.requestFocus();
       });
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString("emojis", jsonEncode(emojiList));
+      prefs.setString("emojis", jsonEncode(emojiList).toString());
     });
   }
 

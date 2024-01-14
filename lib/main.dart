@@ -281,7 +281,10 @@ Future<String> getHost() async {
 
 Future<Map<String,String>> getEmoji() async{
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  var res = await jsonDecode(prefs.getString("emojis").toString());
+  var json = prefs.getString("emojis").toString();
+  print("data" + json);
+  Map<String, String> res = Map.castFrom(jsonDecode(json));
+  print(res);
   return res;
 }
 
