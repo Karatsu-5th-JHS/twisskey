@@ -2,7 +2,6 @@
 import 'dart:convert';
 
 import 'package:blur/blur.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -141,7 +140,7 @@ class _noteViewPage extends State<viewNote>{
                                         children: [
                                           TextButton(onPressed: ()=>{print("reply pressed")}, child: const Icon(Icons.reply)),
                                           TextButton(onPressed: () {
-                                            doRenote().renote(feed["id"]);
+                                            DoingRenote().renote(feed["id"]);
                                             Fluttertoast.showToast(msg: "リノートしました",fontSize: 18);
                                           }
                                     ,child: const Icon(Icons.repeat),),
@@ -190,7 +189,9 @@ class _noteViewPage extends State<viewNote>{
     return dj;
   }
   Widget checkImageOrText(text, image){
-    print(image);
+    if (kDebugMode) {
+      print(image);
+    }
     if(text != null){
       if(!image.isEmpty){
         return Column(
@@ -214,7 +215,9 @@ class _noteViewPage extends State<viewNote>{
               },
               searchTap: (content){
                 content = content.replaceAll(" ", "+");
-                print("Search tapped! content=>search?q=$content");
+                if (kDebugMode) {
+                  print("Search tapped! content=>search?q=$content");
+                }
                 launchUrl(Uri.parse("https://www.google.com/search?q=$content"));
               },
             ),
@@ -249,7 +252,9 @@ class _noteViewPage extends State<viewNote>{
         },
         searchTap: (content){
           content = content.replaceAll(" ", "+");
-          print("Search tapped! content=>search?q=$content");
+          if (kDebugMode) {
+            print("Search tapped! content=>search?q=$content");
+          }
           launchUrl(Uri.parse("https://www.google.com/search?q=$content"));
         },
       );
@@ -268,9 +273,13 @@ class _noteViewPage extends State<viewNote>{
   Widget isNeedBlur(sensitiveFlug){
     var image = sensitiveFlug["url"];
     var sf = sensitiveFlug["isSensitive"];
-    print("isSensitive:$sf");
+    if (kDebugMode) {
+      print("isSensitive:$sf");
+    }
     if(sf == true){
-      print("Blur skip");
+      if (kDebugMode) {
+        print("Blur skip");
+      }
       return Blur(
         child: SizedBox(
           height: 300,

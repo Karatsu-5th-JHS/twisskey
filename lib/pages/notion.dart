@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mfm/mfm.dart';
@@ -21,13 +20,19 @@ class _notion extends State<notion> {
   final focusNode = FocusNode();
   late Widget icons;
   late ImageProvider notionImage;
+
+  late Future<dynamic> _notificationFuture;
+
+
+
   @override
   void initState(){
     super.initState();
     loadEmoji();
     _notificationFuture = _notificationLoading();
   }
-  late Future<dynamic> _notificationFuture;
+
+
   Future loadEmoji() async{
     emojiList = await getEmoji();
   }
@@ -63,7 +68,7 @@ class _notion extends State<notion> {
           });
         },
       child: FutureBuilder<dynamic> (
-          future: _notificationLoading(),
+          future: _notificationFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
@@ -95,21 +100,23 @@ class _notion extends State<notion> {
                       }
                       var id = "0x0000";
                       if(feed['type']=="reaction") {
-                        matsubi = "このノートが"+user+"にリアクションされました";
-                        icons = Icon(Icons.add);
+                        matsubi = "このノートが$userにリアクションされました";
+                        icons = const Icon(Icons.add);
                         id = feed["note"]["id"];
                       }else if(feed['type']=="renote"){
-                        matsubi = "このノートが"+user+"にリノートされました";
-                        icons = Icon(Icons.repeat);
+                        matsubi = "このノートが$userにリノートされました";
+                        icons = const Icon(Icons.repeat);
                         id = feed["note"]["id"];
                       }else if(feed['type']=="note") {
-                        matsubi = user+"の新しいノート";
-                        icons = Icon(Icons.comment_outlined);
+                        matsubi = "$userの新しいノート";
+                        icons = const Icon(Icons.comment_outlined);
                         id = feed["note"]["id"];
                       }
                       final text = matsubi;
                       final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
-                      print(user + ":" + text);
+                      if (kDebugMode) {
+                        print("$user:$text");
+                      }
                       return Column(children: [
                         InkWell(
                           onTap: () => {
@@ -123,50 +130,48 @@ class _notion extends State<notion> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         CircleAvatar(
-                                          child: icons,
                                           radius: 24,
+                                          child: icons,
                                         ),
                                         const SizedBox(width: 8.0),
                                         Flexible(
-                                          child: Container(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                                children:[
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                    MainAxisAlignment. spaceAround,
-                                                    children: [
-                                                      Flexible(
-                                                          child: Mfm(
-                                                              mfmText: "**$user**",
-                                                              emojiBuilder: (context, emoji, style) {
-                                                                final emojiData = emojiList[emoji];
-                                                                if (emojiData == null) {
-                                                                  return Text.rich(TextSpan(text: emoji, style: style));
-                                                                } else {
-                                                                  // show emojis if emoji data found
-                                                                  return Image.network(
-                                                                    emojiData,
-                                                                    height: (style?.fontSize ?? 1) * 2,
-                                                                  );
-                                                                }
-                                                              })
-                                                      ),
-
-                                                      Text(
-                                                        timeago.format(createdAt, locale: "ja"),
-                                                        style: const TextStyle(fontSize: 12.0),
-                                                        overflow: TextOverflow.clip,
-                                                      ),
-                                                    ],
+                                          child: Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children:[
+                                              Row(
+                                                mainAxisAlignment:
+                                                MainAxisAlignment. spaceAround,
+                                                children: [
+                                                  Flexible(
+                                                      child: Mfm(
+                                                          mfmText: "**$user**",
+                                                          emojiBuilder: (context, emoji, style) {
+                                                            final emojiData = emojiList[emoji];
+                                                            if (emojiData == null) {
+                                                              return Text.rich(TextSpan(text: emoji, style: style));
+                                                            } else {
+                                                              // show emojis if emoji data found
+                                                              return Image.network(
+                                                                emojiData,
+                                                                height: (style?.fontSize ?? 1) * 2,
+                                                              );
+                                                            }
+                                                          })
                                                   ),
-                                                  const SizedBox(height: 10.0),
-                                                  /*Text(text,
-                                                style: const TextStyle(fontSize: 15.0)),*/
-                                                  Mfm(mfmText: text),
+
+                                                  Text(
+                                                    timeago.format(createdAt, locale: "ja"),
+                                                    style: const TextStyle(fontSize: 12.0),
+                                                    overflow: TextOverflow.clip,
+                                                  ),
                                                 ],
-                                              )
+                                              ),
+                                              const SizedBox(height: 10.0),
+                                              /*Text(text,
+                                            style: const TextStyle(fontSize: 15.0)),*/
+                                              Mfm(mfmText: text),
+                                            ],
                                           ),
                                         ),
                                       ],

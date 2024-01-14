@@ -160,17 +160,17 @@ class _TimeLinePage extends State<TimelinePage> {
               child: const Icon(Icons.add),
             )
         ),
-        bottomNavigationBar: BottomAppBar(child: Center(child: Padding( padding: EdgeInsets.symmetric(horizontal: 1.0),
+        bottomNavigationBar: BottomAppBar(child: Center(child: Padding( padding: const EdgeInsets.symmetric(horizontal: 1.0),
         child:Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            IconButton(onPressed: (){print("pushed home");}, icon: Icon(Icons.home)),
-            IconButton(onPressed: (){print("pushed search");}, icon: Icon(Icons.search)),
+            IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushHome",fontSize: 18);}, icon: const Icon(Icons.home)),
+            IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushSearch",fontSize: 18);}, icon: const Icon(Icons.search)),
             IconButton(onPressed: (){
               Navigator.push(context,MaterialPageRoute(builder: (context)=>const notion()));
-            }, icon: Icon(Icons.notifications)),
-            IconButton(onPressed: (){print("pushed messaging");}, icon: Icon(Icons.mail)),
-            IconButton(onPressed: (){print("pushed other");}, icon: Icon(Icons.menu))
+            }, icon: const Icon(Icons.notifications)),
+            IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushMes",fontSize: 18);}, icon: const Icon(Icons.mail)),
+            IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushMenu",fontSize: 18);}, icon: const Icon(Icons.menu))
           ],
         ))),),
         body: RefreshIndicator(
@@ -236,69 +236,67 @@ class _TimeLinePage extends State<TimelinePage> {
                                               ),
                                               const SizedBox(width: 8.0),
                                               Flexible(
-                                                child: Container(
-                                                    child: Column(
-                                                        crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                        children:[
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                            MainAxisAlignment. spaceAround,
-                                                            children: [
-                                                              Flexible(
-                                                                child: Mfm(
-                                                                    mfmText: "${"**" + author["name"]}**",
-                                                                    emojiBuilder: (context, emoji, style) {
-                                                                      final emojiData = emojiList[emoji];
-                                                                      if (emojiData == null) {
-                                                                        return Text.rich(TextSpan(text: emoji, style: style));
-                                                                      } else {
-                                                                        // show emojis if emoji data found
-                                                                        return Image.network(
-                                                                          emojiData,
-                                                                          height: (style?.fontSize ?? 1) * 2,
-                                                                        );
-                                                                      }
-                                                                    })
-                                                                  /*Text(
-                                                                  author['name'],
-                                                                  overflow: TextOverflow.ellipsis,
-                                                                  style:
-                                                                  const TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold),
-                                                                ),*/
-                                                              ),
-                                                              Flexible(
-                                                                child: Text(
-                                                                  '@${author['username']}$instance',
-                                                                  overflow: TextOverflow.ellipsis,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                timeago.format(createdAt, locale: "ja"),
-                                                                style: const TextStyle(fontSize: 12.0),
-                                                                overflow: TextOverflow.clip,
-                                                              ),
-                                                            ],
+                                                child: Column(
+                                                    crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                    children:[
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                        MainAxisAlignment. spaceAround,
+                                                        children: [
+                                                          Flexible(
+                                                            child: Mfm(
+                                                                mfmText: "**${author["name"]}**",
+                                                                emojiBuilder: (context, emoji, style) {
+                                                                  final emojiData = emojiList[emoji];
+                                                                  if (emojiData == null) {
+                                                                    return Text.rich(TextSpan(text: emoji, style: style));
+                                                                  } else {
+                                                                    // show emojis if emoji data found
+                                                                    return Image.network(
+                                                                      emojiData,
+                                                                      height: (style?.fontSize ?? 1) * 2,
+                                                                    );
+                                                                  }
+                                                                })
+                                                              /*Text(
+                                                              author['name'],
+                                                              overflow: TextOverflow.ellipsis,
+                                                              style:
+                                                              const TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold),
+                                                            ),*/
                                                           ),
-                                                          const SizedBox(height: 10.0),
-                                                          /*Text(text,
-                                                style: const TextStyle(fontSize: 15.0)),*/
-                                                          checkImageOrText(text, feed["files"]),
-                                                          Row(
-                                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                            children: [
-                                                              TextButton(onPressed: ()=>{print("reply pressed")}, child: const Icon(Icons.reply)),
-                                                              TextButton(onPressed: () {
-                                                                doRenote().renote(feed["id"]);
-                                                                Fluttertoast.showToast(msg: "リノートしました",fontSize: 18);
-                                                              }
-                                                              ,child: const Icon(Icons.repeat),),
-                                                              TextButton(onPressed: ()=>{print("reaction Pressed")},child: const Icon(Icons.add)),
-                                                              TextButton(onPressed: ()=>{print("moreMenu Pressed")},child: const Icon(Icons.more_horiz))
-                                                            ]
+                                                          Flexible(
+                                                            child: Text(
+                                                              '@${author['username']}$instance',
+                                                              overflow: TextOverflow.ellipsis,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            timeago.format(createdAt, locale: "ja"),
+                                                            style: const TextStyle(fontSize: 12.0),
+                                                            overflow: TextOverflow.clip,
                                                           ),
                                                         ],
-                                                    )
+                                                      ),
+                                                      const SizedBox(height: 10.0),
+                                                      /*Text(text,
+                                                                                                style: const TextStyle(fontSize: 15.0)),*/
+                                                      checkImageOrText(text, feed["files"]),
+                                                      Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                        children: [
+                                                          TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "リプライ",fontSize: 18)}, child: const Icon(Icons.reply)),
+                                                          TextButton(onPressed: () {
+                                                            DoingRenote().renote(feed["id"]);
+                                                            Fluttertoast.showToast(msg: "リノートしました",fontSize: 18);
+                                                          }
+                                                          ,child: const Icon(Icons.repeat),),
+                                                          TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "リアクション",fontSize: 18)},child: const Icon(Icons.add)),
+                                                          TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "その他メニュー",fontSize: 18)},child: const Icon(Icons.more_horiz))
+                                                        ]
+                                                      ),
+                                                    ],
                                                 ),
                                               ),
                                             ],
@@ -326,7 +324,9 @@ class _TimeLinePage extends State<TimelinePage> {
     );
   }
   Widget checkImageOrText(text, image){
-    print(image);
+    if (kDebugMode) {
+      print(image);
+    }
     if(text != null){
       if(!image.isEmpty){
         return Column(
@@ -350,7 +350,9 @@ class _TimeLinePage extends State<TimelinePage> {
               },
               searchTap: (content){
                 content = content.replaceAll(" ", "+");
-                print("Search tapped! content=>search?q=$content");
+                if (kDebugMode) {
+                  print("Search tapped! content=>search?q=$content");
+                }
                 launchUrl(Uri.parse("https://www.google.com/search?q=$content"));
               },
             ),
@@ -385,7 +387,9 @@ class _TimeLinePage extends State<TimelinePage> {
         },
         searchTap: (content){
           content = content.replaceAll(" ", "+");
-          print("Search tapped! content=>search?q=$content");
+          if (kDebugMode) {
+            print("Search tapped! content=>search?q=$content");
+          }
           launchUrl(Uri.parse("https://www.google.com/search?q=$content"));
         },
       );
@@ -404,9 +408,13 @@ class _TimeLinePage extends State<TimelinePage> {
   Widget isNeedBlur(sensitiveFlug){
     var image = sensitiveFlug["url"];
     var sf = sensitiveFlug["isSensitive"];
-    print("isSensitive:$sf");
+    if (kDebugMode) {
+      print("isSensitive:$sf");
+    }
     if(sf == true){
-      print("Blur skip");
+      if (kDebugMode) {
+        print("Blur skip");
+      }
       return Blur(
         child: SizedBox(
           height: 300,
