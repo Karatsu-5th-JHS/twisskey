@@ -13,6 +13,7 @@ import 'package:twisskey/main.dart';
 import 'package:twisskey/newTweet.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:twisskey/pages/note.dart';
 import 'package:twisskey/pages/notion.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -208,6 +209,7 @@ class _TimeLinePage extends State<TimelinePage> {
                             final text = feed["text"];
                             final author = feed["user"];
                             final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
+                            final id = feed["id"].toString();
                             var instance = "";
                             if(feed["user"]["host"] != null){
                               instance = '@${feed["user"]["host"]}';
@@ -217,7 +219,9 @@ class _TimeLinePage extends State<TimelinePage> {
                             }
                             return Column(children: [
                               InkWell(
-                                onTap: () => print('Tapped!'),
+                                onTap: () => {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>viewNote(noteId: id)))
+                                },
                                 child: Container(
                                     padding: const EdgeInsets.only(left: 8.0,bottom: 8.0,right:8.0),
                                     child: Column(
@@ -284,17 +288,10 @@ class _TimeLinePage extends State<TimelinePage> {
                                                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                             children: [
                                                               TextButton(onPressed: ()=>{print("reply pressed")}, child: const Icon(Icons.reply)),
-                                                              TextButton(onPressed: () async {
+                                                              TextButton(onPressed: () {
                                                                 doRenote().renote(feed["id"]);
                                                                 Fluttertoast.showToast(msg: "リノートしました",fontSize: 18);
-                                                                await Future.delayed(Duration(milliseconds: 100), ()
-                                                                {
-                                                                  setState(() {
-                                                                    _timelineFuture =
-                                                                        _fetchTimeline();
-                                                                  });
-                                                                });
-                                                                }
+                                                              }
                                                               ,child: const Icon(Icons.repeat),),
                                                               TextButton(onPressed: ()=>{print("reaction Pressed")},child: const Icon(Icons.add)),
                                                               TextButton(onPressed: ()=>{print("moreMenu Pressed")},child: const Icon(Icons.more_horiz))
