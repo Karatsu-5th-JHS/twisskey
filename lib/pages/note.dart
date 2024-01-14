@@ -28,6 +28,9 @@ class _noteViewPage extends State<viewNote>{
   @override
   void initState() {
     super.initState();
+    if(noteId=="0x0000"){
+      Navigator.pop(context);
+    }
     _timelineFuture = _fetchNote(noteId);
     if (kDebugMode) {
       print(noteId);
