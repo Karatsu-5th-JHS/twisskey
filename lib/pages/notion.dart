@@ -8,6 +8,7 @@ import 'package:mfm/mfm.dart';
 import 'package:twisskey/main.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:http/http.dart' as http;
+import 'package:twisskey/pages/note.dart';
 
 class notion extends StatefulWidget {
   const notion({Key? key}) : super(key: key);
@@ -20,14 +21,13 @@ class _notion extends State<notion> {
   final focusNode = FocusNode();
   late Widget icons;
   late ImageProvider notionImage;
-  late Future<dynamic> _notificationFuture;
   @override
   void initState(){
     super.initState();
     loadEmoji();
     _notificationFuture = _notificationLoading();
   }
-
+  late Future<dynamic> _notificationFuture;
   Future loadEmoji() async{
     emojiList = await getEmoji();
   }
@@ -77,21 +77,44 @@ class _notion extends State<notion> {
                       }
                       //タイプ判別
                       var matsubi = "";
+                      var user = "";
+
+                      if(feed['type']=="app") {
+                        matsubi = feed["body"];
+                        user = feed["header"];
+                      }
+
+                      if(feed["user"]==null && user == ""){
+                        user = "NAME FETCH IS FAILED";
+                      }else if(feed["user"]!=null && user==""){
+                        if(feed["user"]["name"] == null){
+                          user = feed["user"]["username"];
+                        }else {
+                          user = feed["user"]["name"];
+                        }
+                      }
+                      var id = "0x0000";
                       if(feed['type']=="reaction") {
-                        matsubi = "このノートが"+feed["user"]["name"]+"にリアクションされました";
+                        matsubi = "このノートが"+user+"にリアクションされました";
                         icons = Icon(Icons.add);
+                        id = feed["note"]["id"];
                       }else if(feed['type']=="renote"){
-                        matsubi = "このノートが"+feed["user"]["name"]+"にリノートされました";
+                        matsubi = "このノートが"+user+"にリノートされました";
                         icons = Icon(Icons.repeat);
+                        id = feed["note"]["id"];
                       }else if(feed['type']=="note") {
-                        matsubi = feed["user"]["name"]+"の新しいノート";
+                        matsubi = user+"の新しいノート";
                         icons = Icon(Icons.comment_outlined);
+                        id = feed["note"]["id"];
                       }
                       final text = matsubi;
                       final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
+                      print(user + ":" + text);
                       return Column(children: [
                         InkWell(
-                          onTap: () => print('Tapped!'),
+                          onTap: () => {
+                            Navigator.push(context,MaterialPageRoute(builder: (context)=>viewNote(noteId: id)))
+                          },
                           child: Container(
                               padding: const EdgeInsets.only(left: 8.0,bottom: 8.0,right:8.0),
                               child: Column(
@@ -116,7 +139,7 @@ class _notion extends State<notion> {
                                                     children: [
                                                       Flexible(
                                                           child: Mfm(
-                                                              mfmText: "${"**" + feed["user"]["name"]}**",
+                                                              mfmText: "**$user**",
                                                               emojiBuilder: (context, emoji, style) {
                                                                 final emojiData = emojiList[emoji];
                                                                 if (emojiData == null) {
@@ -141,7 +164,7 @@ class _notion extends State<notion> {
                                                   const SizedBox(height: 10.0),
                                                   /*Text(text,
                                                 style: const TextStyle(fontSize: 15.0)),*/
-                                                  Text(text),
+                                                  Mfm(mfmText: text),
                                                 ],
                                               )
                                           ),
