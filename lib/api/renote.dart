@@ -5,7 +5,7 @@ import 'package:twisskey/main.dart';
 import 'package:http/http.dart' as http;
 
 
-class doRenote {
+class DoingRenote {
   Future<String> renote(id) async{
     var token = await getToken();
     var host = await getHost();

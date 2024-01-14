@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'TKNGH'),
-      supportedLocales: [Locale('ja','JP')],
+      supportedLocales: const [Locale('ja','JP')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
             if(session == null){
               pushPage(const TimelinePage());
             }else{
-              pushPage(authenticate(session: session));
+              pushPage(Authenticate(session: session));
             }
             break;
         }
@@ -282,9 +282,13 @@ Future<String> getHost() async {
 Future<Map<String,String>> getEmoji() async{
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   var json = prefs.getString("emojis").toString();
-  print("data" + json);
+  if (kDebugMode) {
+    print("data$json");
+  }
   Map<String, String> res = Map.castFrom(jsonDecode(json));
-  print(res);
+  if (kDebugMode) {
+    print(res);
+  }
   return res;
 }
 

@@ -57,7 +57,6 @@ class newTweet extends StatelessWidget{
     final Uri uri = Uri.parse("https://$host/api/notes/create");
     Map<String, String> headers = {'Content-Type': 'application/json',"charset":'UTF-8'};
     final body = {"text": tweet, "i":token};
-    final response = await http.post(uri,headers: headers, body: jsonEncode(body));
-    final String res = response.body;
+    await http.post(uri,headers: headers, body: jsonEncode(body));
   }
 }
