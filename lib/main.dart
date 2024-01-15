@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twisskey/authenticate.dart';
 import 'package:uni_links/uni_links.dart';
@@ -53,6 +54,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   StreamSubscription? _sub;
   String isSelectedItem = "m.tkngh.jp";
+  String TOKEN = "";
 
   @override
   void initState() {
@@ -158,6 +160,23 @@ class _MyHomePageState extends State<MyHomePage> {
                         value: isSelectedItem,
                       ),
                       loginButton(isSelectedItem),
+                      TextField(
+                        onChanged: (text)=>{
+                          TOKEN = text
+                        },
+                        decoration: const InputDecoration(
+                          hintText: "トークンを入力"
+                        ),
+                      ),
+                      ElevatedButton(onPressed: () async {
+                        var check = await loginWithToken(isSelectedItem, TOKEN);
+                        if(check!="true"){
+                          await Fluttertoast.showToast(msg: "ログインできませんでした",fontSize: 18);
+                        }else{
+                          await Fluttertoast.showToast(msg: "ログインしました。再起動してください。",fontSize: 18);
+                        }
+                        }, child: const Text("トークンでログイン")
+                      ),
                       ElevatedButton(onPressed: (){logout();}, child: const Text("修復"))
                     ]
                   );
@@ -199,6 +218,32 @@ class _MyHomePageState extends State<MyHomePage> {
     Map<String, dynamic> map = jsonDecode(res);
     String url = map["avatarUrl"];
     return url;
+  }
+
+  Future<String> loginWithToken(String isSelectedItem, String T) async {
+    _MyHomePageState().saveHost(isSelectedItem);
+    String host = isSelectedItem;
+    String TOKEN = T;
+    if(TOKEN=="null"){
+      return "false";
+    }
+    final Uri uri = Uri.parse("https://$host/api/i");
+    Map<String, String> headers = {'content-type': 'application/json'};
+    final response = await http.post(uri,headers: headers, body: json.encode({"i": TOKEN}));
+    final String res = response.body;
+    Map<String, dynamic> map = jsonDecode(res);
+    if(map["name"] != null){
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      var accountPos = (prefs.getInt('counter') ?? 0);
+      if(accountPos == 0) {
+        prefs.setInt("counter", 1);
+        prefs.setInt("selection", 1);
+        prefs.setString("1", TOKEN);
+      }
+      return "true";
+    }else{
+      return "false";
+    }
   }
 }
 
