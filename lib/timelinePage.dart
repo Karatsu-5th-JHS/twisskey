@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mfm/mfm.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:twisskey/api/myAccount.dart';
 
 import 'package:twisskey/api/renote.dart';
 import 'package:twisskey/main.dart';
@@ -45,8 +46,8 @@ class _TimeLinePage extends State<TimelinePage> {
   }
 
   Future<dynamic> _fetchTimeline() async {
-    var token = await getToken();
-    var host = await getHost();
+    var token = await sysAccount().getToken();
+    var host = await sysAccount().getHost();
     final Uri uri = Uri.parse("https://$host/api/notes/timeline");
     Map<String, String> headers = {'content-type': 'application/json'};
     final response = await http.post(
@@ -210,6 +211,11 @@ class _TimeLinePage extends State<TimelinePage> {
                             final author = feed["user"];
                             final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
                             final id = feed["id"].toString();
+                            /*final int isRenote = await DoingRenote().check(id);
+                            if (kDebugMode) {
+                              print(isRenote);
+                            }
+                            */
                             var instance = "";
                             if(feed["user"]["host"] != null){
                               instance = '@${feed["user"]["host"]}';
@@ -217,6 +223,7 @@ class _TimeLinePage extends State<TimelinePage> {
                             if(author["name"]==null){
                               author["name"] = "";
                             }
+
                             return Column(children: [
                               InkWell(
                                 onTap: () => {
@@ -288,10 +295,50 @@ class _TimeLinePage extends State<TimelinePage> {
                                                         children: [
                                                           TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "リプライ",fontSize: 18)}, child: const Icon(Icons.reply)),
                                                           TextButton(onPressed: () {
-                                                            DoingRenote().renote(feed["id"]);
-                                                            Fluttertoast.showToast(msg: "リノートしました",fontSize: 18);
+                                                            DoingRenote().check(id).then((value) => {
+                                                              if(value == 1){
+                                                                showDialog<void>(
+                                                                builder: (context) {
+                                                                  return AlertDialog(
+                                                                    title: const Text("再リツイート警告"),
+                                                                    content: const Text("このツイートはすでにリツイート済みです。再リツイートしますか？(この警告は将来的に設定で無効化できます)"),
+                                                                    actions: <Widget>[
+                                                                      GestureDetector(
+                                                                        child: Container(
+                                                                          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                                                                          child: const Text("いいえ"),
+                                                                        ),
+                                                                        onTap: () {
+                                                                          Navigator.pop(context);
+                                                                        },
+                                                                      ),
+                                                                      GestureDetector(
+                                                                        child: Container(
+                                                                          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                                                                          child: const Text("はい"),
+                                                                        ),
+                                                                        onTap: () {
+                                                                          DoingRenote().renote(feed["id"]);
+                                                                          Fluttertoast.showToast(msg: "リツイートしました",fontSize: 18);
+                                                                          Navigator.pop(context);
+                                                                        },
+                                                                      )
+                                                                  ],
+                                                                  );
+                                                                }, context: context)
+                                                              }else{
+                                                                DoingRenote().renote(feed["id"]),
+                                                                Fluttertoast.showToast(msg: "リツイートしました",fontSize: 18)
+                                                              }
+                                                            });
                                                           }
-                                                          ,child: const Icon(Icons.repeat),),
+                                                          ,child: Row(
+                                                              children: [
+                                                                const Icon(Icons.repeat),
+                                                                Text(feed["renoteCount"].toString())
+                                                              ],
+                                                            ),
+                                                          ),
                                                           TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "リアクション",fontSize: 18)},child: const Icon(Icons.add)),
                                                           TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "その他メニュー",fontSize: 18)},child: const Icon(Icons.more_horiz))
                                                         ]

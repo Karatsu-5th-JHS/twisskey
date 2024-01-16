@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/authenticate.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -210,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
     prefs.setString("host", instance);
   }
   Future<String> getIconImage() async{
-    var token = getToken();
+    var token = sysAccount().getToken();
     final Uri uri = Uri.parse("https://m.tkngh.jp/api/i");
     Map<String, String> headers = {'content-type': 'application/json'};
     final response = await http.post(uri,headers: headers, body: json.encode({"i": token}));
@@ -282,8 +283,8 @@ Future<String> loginCheck() async {
   if (kDebugMode) {
     print("request start");
   }
-  var token = await getToken();
-  var host = await getHost();
+  var token = await sysAccount().getToken();
+  var host = await sysAccount().getHost();
   if (kDebugMode) {
     print("token get");
   }
@@ -301,27 +302,6 @@ Future<String> loginCheck() async {
   }else{
     return "false";
   }
-}
-
-Future<String> getToken() async {
-  SharedPreferences sp = await SharedPreferences.getInstance();
-  var token = sp.getString(sp.getInt("selection").toString()) ?? 'null';
-  if (kDebugMode) {
-    print(sp.getInt("selection"));
-  }
-  if (kDebugMode) {
-    print("token: $token");
-  }
-  return token;
-}
-
-Future<String> getHost() async {
-  SharedPreferences sp = await SharedPreferences.getInstance();
-  var token = sp.getString("host") ?? 'null';
-  if (kDebugMode) {
-    print("host: $token");
-  }
-  return token;
 }
 
 Future<Map<String,String>> getEmoji() async{
