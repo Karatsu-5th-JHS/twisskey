@@ -14,6 +14,7 @@ import 'package:twisskey/main.dart';
 import 'package:twisskey/newTweet.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:twisskey/pages/about_system.dart';
 import 'package:twisskey/pages/note.dart';
 import 'package:twisskey/pages/notion.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -127,10 +128,10 @@ class _TimeLinePage extends State<TimelinePage> {
                 child: Text('Drawer Header'),
               ),
               ListTile(
-                title: const Text('Configurations'),
+                title: const Text('About'),
                 onTap: () {
                   // Do something
-                  Navigator.pop(context);
+                  Navigator.push(context,MaterialPageRoute(builder: (context)=>const SystemAbout()));
                 },
               ),
               ListTile(
