@@ -112,6 +112,9 @@ class _notion extends State<notion> {
                         matsubi = "$userの新しいノート";
                         icons = const Icon(Icons.comment_outlined);
                         id = feed["note"]["id"];
+                      }else{
+                        matsubi = "通知を認識できませんでした";
+                        icons = const Icon(Icons.question_mark);
                       }
                       final text = matsubi;
                       final createdAt = DateTime.parse(feed["createdAt"]).toLocal();

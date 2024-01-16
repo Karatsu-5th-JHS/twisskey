@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:twisskey/api/myAccount.dart';
-import 'package:twisskey/main.dart';
 import 'package:http/http.dart' as http;
 
 class newTweet extends StatelessWidget{
