@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mfm/mfm.dart';
+import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/main.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:http/http.dart' as http;
@@ -38,8 +39,8 @@ class _notion extends State<notion> {
   }
 
   Future<dynamic> _notificationLoading() async {
-    var token = await getToken();
-    var host = await getHost();
+    var token = await sysAccount().getToken();
+    var host = await sysAccount().getHost();
     final Uri uri = Uri.parse("https://$host/api/i/notifications");
     Map<String, String> headers = {'content-type': 'application/json'};
     final response = await http.post(
@@ -111,6 +112,9 @@ class _notion extends State<notion> {
                         matsubi = "$userの新しいノート";
                         icons = const Icon(Icons.comment_outlined);
                         id = feed["note"]["id"];
+                      }else{
+                        matsubi = "通知を認識できませんでした";
+                        icons = const Icon(Icons.question_mark);
                       }
                       final text = matsubi;
                       final createdAt = DateTime.parse(feed["createdAt"]).toLocal();

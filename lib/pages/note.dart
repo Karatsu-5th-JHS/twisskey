@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mfm/mfm.dart';
+import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/api/renote.dart';
 import 'package:twisskey/main.dart';
 import 'package:http/http.dart' as http;
@@ -171,8 +172,8 @@ class _noteViewPage extends State<viewNote>{
   }
 
   Future<dynamic> _fetchNote(id) async {
-    var token = await getToken();
-    var host = await getHost();
+    var token = await sysAccount().getToken();
+    var host = await sysAccount().getHost();
     final Uri uri = Uri.parse("https://$host/api/notes/show");
     Map<String, String> headers = {'content-type': 'application/json'};
     final response = await http.post(

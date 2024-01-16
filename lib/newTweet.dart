@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:twisskey/main.dart';
+import 'package:twisskey/api/myAccount.dart';
 import 'package:http/http.dart' as http;
 
 class newTweet extends StatelessWidget{
@@ -52,8 +52,8 @@ class newTweet extends StatelessWidget{
     ));
   }
   Future doTweet(String tweet) async{
-    var token = await getToken();
-    var host = await getHost();
+    var token = await sysAccount().getToken();
+    var host = await sysAccount().getHost();
     final Uri uri = Uri.parse("https://$host/api/notes/create");
     Map<String, String> headers = {'Content-Type': 'application/json',"charset":'UTF-8'};
     final body = {"text": tweet, "i":token};
