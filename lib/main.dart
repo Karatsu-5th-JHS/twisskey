@@ -14,7 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 import 'package:twisskey/timelinePage.dart';
-
+import 'color_schemes.g.dart';
 //アイコンの初期化
 String iconImage = "";
 
@@ -30,8 +30,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'TKNGH for Android',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+          useMaterial3: true, colorScheme: lightColorScheme
       ),
+      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
       home: const MyHomePage(title: 'TKNGH'),
       supportedLocales: const [Locale('ja','JP')],
       localizationsDelegates: const [
@@ -149,6 +150,18 @@ class _MyHomePageState extends State<MyHomePage> {
                           DropdownMenuItem(
                             value: 'exekey.net',
                             child: Text('exekey.net'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'love.xn--vusz0j.life',
+                            child: Text('love.幼女.life'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'misskey.network',
+                            child: Text('misskey.network'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'mi.okin-jp.net',
+                            child: Text('mi.okin-jp.net'),
                           ),
                         ],
                         //6

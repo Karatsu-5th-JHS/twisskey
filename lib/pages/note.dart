@@ -28,6 +28,7 @@ class _noteViewPage extends State<viewNote>{
   @override
   void initState() {
     super.initState();
+    loadEmoji();
     if(noteId=="0x0000"){
       Navigator.pop(context);
     }
@@ -144,12 +145,13 @@ class _noteViewPage extends State<viewNote>{
                                             DoingRenote().renote(feed["id"]);
                                             Fluttertoast.showToast(msg: "リノートしました",fontSize: 18);
                                           }
-                                    ,child: const Icon(Icons.repeat),),
-    TextButton(onPressed: ()=>{print("reaction Pressed")},child: const Icon(Icons.add)),
-    TextButton(onPressed: ()=>{print("moreMenu Pressed")},child: const Icon(Icons.more_horiz))
-    ]
-    ),
-    ],
+                                            ,child: const Icon(Icons.repeat),
+                                          ),
+                                          TextButton(onPressed: ()=>{print("reaction Pressed")},child: const Icon(Icons.add)),
+                                          TextButton(onPressed: ()=>{print("moreMenu Pressed")},child: const Icon(Icons.more_horiz))
+                                        ]
+                                    ),
+                                  ],
     )
     ),
     ),
@@ -157,7 +159,7 @@ class _noteViewPage extends State<viewNote>{
     ),
     ])),
     ),
-    const Divider(height: 1, thickness: 1, color: Colors.white12)
+                  const Divider(height: 1, thickness: 1, color: Colors.white12)
     ]);
     }
     );
