@@ -3,12 +3,14 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mfm/mfm.dart';
 import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/main.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:http/http.dart' as http;
 import 'package:twisskey/pages/note.dart';
+import 'package:twisskey/timelinePage.dart';
 
 class notion extends StatefulWidget {
   const notion({Key? key}) : super(key: key);
@@ -62,6 +64,19 @@ class _notion extends State<notion> {
       appBar: AppBar(
         title: const Text("通知")
       ),
+      bottomNavigationBar: BottomAppBar(child: Center(child: Padding( padding: const EdgeInsets.symmetric(horizontal: 1.0),
+          child:Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(onPressed: (){Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>const TimelinePage()));}, icon: const Icon(Icons.home)),
+              IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushSearch",fontSize: 18);}, icon: const Icon(Icons.search)),
+              IconButton(onPressed: (){
+                Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>const notion()));
+              }, icon: const Icon(Icons.notifications)),
+              IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushMes",fontSize: 18);}, icon: const Icon(Icons.mail)),
+              IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushMenu",fontSize: 18);}, icon: const Icon(Icons.menu))
+            ],
+          ))),),
       body: RefreshIndicator(
         onRefresh: () async {
           setState((){
