@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mfm/mfm.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twisskey/api/myAccount.dart';
+import 'package:twisskey/api/reaction.dart';
 
 import 'package:twisskey/api/renote.dart';
 import 'package:twisskey/main.dart';
@@ -64,6 +65,24 @@ class _TimeLinePage extends State<TimelinePage> {
     }*/
     return dj;
   }
+
+  Future<dynamic> getIcon(String noteId) async {
+    var result = "";
+    /*DoReaction().get(noteId).then((value) => {
+      if(value != ""){
+        result = const Icon(Icons.favorite)
+      }else{
+        result = const Icon(Icons.favorite_outline)
+      }
+    });*/
+    String res = await DoReaction().get(noteId);
+    if(res != ""){
+      result = "yes";
+    }else{
+      result = "no";
+    }
+    return result;
+}
 
   //絵文字の更新 Update emojis
   void updateEmojisFromServer() {
@@ -169,7 +188,7 @@ class _TimeLinePage extends State<TimelinePage> {
             IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushHome",fontSize: 18);}, icon: const Icon(Icons.home)),
             IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushSearch",fontSize: 18);}, icon: const Icon(Icons.search)),
             IconButton(onPressed: (){
-              Navigator.push(context,MaterialPageRoute(builder: (context)=>const notion()));
+              Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>const notion()));
             }, icon: const Icon(Icons.notifications)),
             IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushMes",fontSize: 18);}, icon: const Icon(Icons.mail)),
             IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushMenu",fontSize: 18);}, icon: const Icon(Icons.menu))
@@ -192,6 +211,7 @@ class _TimeLinePage extends State<TimelinePage> {
                           itemCount: snapshot.data!.length,
                           separatorBuilder: (BuildContext context, int index) => Divider(color: Colors.grey.shade400,),
                           itemBuilder: (context, index){
+                            late Future<dynamic> react;
                             var feed = snapshot.data![index];
                             if(feed == null){
                               exit(0);
@@ -224,6 +244,8 @@ class _TimeLinePage extends State<TimelinePage> {
                             if(author["name"]==null){
                               author["name"] = "";
                             }
+
+                            react = getIcon(feed["id"]);
 
                             return Column(children: [
                               InkWell(
@@ -340,7 +362,33 @@ class _TimeLinePage extends State<TimelinePage> {
                                                               ],
                                                             ),
                                                           ),
-                                                          TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "リアクション",fontSize: 18)},child: const Icon(Icons.add)),
+                                                          TextButton(onPressed: () async {DoReaction().check(feed["id"], "❤");setState(() {
+                                                            react = getIcon(feed["id"]);
+                                                          });},
+                                                              child: FutureBuilder<dynamic>(
+                                                                  future: react,
+                                                                  builder: (BuildContext context, AsyncSnapshot<dynamic> snapshottt) {
+                                                            if (snapshottt
+                                                                .connectionState !=
+                                                                ConnectionState
+                                                                    .done) {
+                                                              return Icon(Icons.favorite_outline);
+                                                            }
+                                                            if (snapshottt
+                                                                .hasData) {
+                                                              print(snapshottt.data);
+                                                              if(snapshottt.data=="yes") {
+                                                                return Icon(
+                                                                    Icons
+                                                                        .favorite);
+                                                              }else{
+                                                                return Icon(Icons.favorite_outline);
+                                                              }
+                                                            } else {
+                                                              return Icon(Icons
+                                                                  .favorite_outline);
+                                                            }
+                                                          })),
                                                           TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "その他メニュー",fontSize: 18)},child: const Icon(Icons.more_horiz))
                                                         ]
                                                       ),
@@ -378,6 +426,7 @@ class _TimeLinePage extends State<TimelinePage> {
     if(text != null){
       if(!image.isEmpty){
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Mfm(
               mfmText: text,
@@ -463,15 +512,16 @@ class _TimeLinePage extends State<TimelinePage> {
       if (kDebugMode) {
         print("Blur skip");
       }
-      return Blur(
+      return GestureDetector(child:Blur(
         child: SizedBox(
           height: 300,
           width: 300,
           child: Image.network(image,width: 300,height: 300),
         ),
-      );
+      ));
     }else{
       return Image.network(image,width: 300,height: 300);
     }
   }
+
 }
