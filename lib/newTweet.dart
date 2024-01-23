@@ -42,6 +42,7 @@ class _newTweet extends State<newTweet>{
         // 例えば、選択した画像のパスを表示する
         if (kDebugMode) {
           print('Selected image path: ${selectedImage.path}');
+        }
           var result = await DriveControl().create(selectedImage.path, selectedImage.name);
           if(result != "fail"){
             /*setState(() {
@@ -51,7 +52,6 @@ class _newTweet extends State<newTweet>{
             });*/
             updateImage(result,await DriveControl().show(id: result));
           }
-        }
       } else {
         // 画像が選択されなかった場合の処理を書く
         // 例えば、エラーメッセージを表示する
@@ -111,6 +111,8 @@ class _newTweet extends State<newTweet>{
               },
               autofocus: true,
               keyboardType: TextInputType.multiline,
+              minLines: 10,
+              maxLines: 10,
               decoration: const InputDecoration(
                 hintText: "いまどうしてる？",
               ),
@@ -118,8 +120,8 @@ class _newTweet extends State<newTweet>{
             if(imageState != "")
               Image.network(imageState)
             ,
-            Text(body != null?"" : "")
-            /*SizedBox(
+            Text(body != null?"" : ""),
+            SizedBox(
               height: 30,
               child: Row(
                 children: [
@@ -130,7 +132,7 @@ class _newTweet extends State<newTweet>{
                   }, icon: const Icon(Icons.image),color: Colors.blue,)
                 ],
               )
-            )*/
+            )
           ]
         )
       )
