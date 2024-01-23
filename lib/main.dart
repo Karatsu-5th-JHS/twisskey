@@ -160,8 +160,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Text('misskey.network'),
                           ),
                           DropdownMenuItem(
-                            value: 'mi.okin-jp.net',
-                            child: Text('mi.okin-jp.net'),
+                            value: 'nekusuchan.net',
+                            child: Text('nekusuchan.net'),
                           ),
                         ],
                         //6
