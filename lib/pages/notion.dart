@@ -121,22 +121,25 @@ class _notion extends State<notion> {
                         }else{
                           noteText = "画像のみの投稿です。";
                         }
-                        matsubi = "このノートが$userにリアクションされました。\n$noteText";
+                        matsubi = noteText;
                         icons = const Icon(Icons.add);
                         id = feed["note"]["id"];
                       }else if(feed['type']=="renote"){
-                        if(feed['note']["text"] != null){
-                          noteText = feed['note']["text"];
+                        if(feed['note']["renote"]["text"] != null){
+                          noteText = feed['note']["renote"]["text"];
                         }else{
                           noteText = "画像のみの投稿です。";
                         }
-                        matsubi = "このノートが$userにリノートされました\n$noteText";
+                        matsubi = noteText;
                         icons = const Icon(Icons.repeat);
                         id = feed["note"]["id"];
                       }else if(feed['type']=="note") {
                         matsubi = "$userの新しいノート";
                         icons = const Icon(Icons.comment_outlined);
                         id = feed["note"]["id"];
+                      }else if(feed["type"]=="followRequestAccepted"){
+                        matsubi = "フォローが承認されました";
+                        icons = const Icon(Icons.check_circle_outlined);
                       }else{
                         matsubi = "通知を認識できませんでした";
                         icons = const Icon(Icons.question_mark);
