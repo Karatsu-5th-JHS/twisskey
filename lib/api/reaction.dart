@@ -14,7 +14,7 @@ class DoReaction{
     final res = response.body;
     print(res);
   }
-  void check(String noteId, String emojiCode) async {
+  Future<bool> check(String noteId, String emojiCode) async {
     var token = await sysAccount().getToken();
     var host = await sysAccount().getHost();
     var info = await sysAccount().getUserInfo();
@@ -44,6 +44,7 @@ class DoReaction{
       action(noteId, emojiCode);
       Fluttertoast.showToast(msg: "Reactioned");
     }
+    return flug;
   }
 
   Future<String> get(String noteId) async {
