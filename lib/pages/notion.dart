@@ -99,7 +99,7 @@ class _notion extends State<notion> {
                       //タイプ判別
                       var matsubi = "";
                       var user = "";
-
+                      var noteText = "";
                       if(feed['type']=="app") {
                         matsubi = feed["body"];
                         user = feed["header"];
@@ -116,11 +116,21 @@ class _notion extends State<notion> {
                       }
                       var id = "0x0000";
                       if(feed['type']=="reaction") {
-                        matsubi = "このノートが$userにリアクションされました";
+                        if(feed['note']["text"] != null){
+                          noteText = feed['note']["text"];
+                        }else{
+                          noteText = "画像のみの投稿です。";
+                        }
+                        matsubi = "このノートが$userにリアクションされました。\n$noteText";
                         icons = const Icon(Icons.add);
                         id = feed["note"]["id"];
                       }else if(feed['type']=="renote"){
-                        matsubi = "このノートが$userにリノートされました";
+                        if(feed['note']["text"] != null){
+                          noteText = feed['note']["text"];
+                        }else{
+                          noteText = "画像のみの投稿です。";
+                        }
+                        matsubi = "このノートが$userにリノートされました\n$noteText";
                         icons = const Icon(Icons.repeat);
                         id = feed["note"]["id"];
                       }else if(feed['type']=="note") {
@@ -189,7 +199,7 @@ class _notion extends State<notion> {
                                               const SizedBox(height: 10.0),
                                               /*Text(text,
                                             style: const TextStyle(fontSize: 15.0)),*/
-                                              Mfm(mfmText: text),
+                                              Text(matsubi,overflow: TextOverflow.ellipsis,),
                                             ],
                                           ),
                                         ),
