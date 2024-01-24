@@ -42,8 +42,7 @@ class _noteViewPage extends State<viewNote>{
     emojiList = await getEmoji();
   }
 
-  Future<dynamic> getIcon(String noteId) async {
-    var result = "";
+  Future<Map<String,dynamic>> getIcon(String noteId) async {
     /*DoReaction().get(noteId).then((value) => {
       if(value != ""){
         result = const Icon(Icons.favorite)
@@ -51,13 +50,8 @@ class _noteViewPage extends State<viewNote>{
         result = const Icon(Icons.favorite_outline)
       }
     });*/
-    String res = await DoReaction().get(noteId);
-    if(res != ""){
-      result = "yes";
-    }else{
-      result = "no";
-    }
-    return result;
+    Map<String,dynamic> res = await DoReaction().get(noteId);
+    return res;
   }
 
   late Future<dynamic> _timelineFuture;
@@ -97,7 +91,7 @@ class _noteViewPage extends State<viewNote>{
                   }
                   final text = feed["text"];
                   final author = feed["user"];
-                  final String avatar = feed["user"]["avatarUrl"];
+                  //final String avatar = feed["user"]["avatarUrl"];
                   final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
                   final id = feed["id"].toString();
                   var instance = "";
@@ -225,17 +219,15 @@ class _noteViewPage extends State<viewNote>{
                                                           }
                                                           if (snapshottt
                                                               .hasData) {
-                                                            print(snapshottt.data);
-                                                            if(snapshottt.data=="yes") {
-                                                              return const Icon(
+                                                            if(snapshottt.data["status"]=="yes") {
+                                                              return Row(children:[const Icon(
                                                                   Icons
-                                                                      .favorite);
+                                                                      .favorite),Text(snapshottt.data["reactions"])]);
                                                             }else{
-                                                              return Icon(Icons.favorite_outline);
+                                                              return Row(children:[const Icon(Icons.favorite_outline),Text(snapshottt.data["reactions"])]);
                                                             }
                                                           } else {
-                                                            return const Icon(Icons
-                                                                .favorite_outline);
+                                                            return Row(children:[const Icon(Icons.favorite_outline),Text(snapshottt.data["reactions"])]);
                                                           }
                                                         })),
                                                 TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "その他メニュー",fontSize: 18)},child: const Icon(Icons.more_horiz))

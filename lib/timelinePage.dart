@@ -5,10 +5,8 @@ import 'package:blur/blur.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mfm/mfm.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/api/reaction.dart';
 
@@ -69,7 +67,6 @@ class _TimeLinePage extends State<TimelinePage> {
   }
 
   Future<dynamic> getIcon(String noteId) async {
-    var result = "";
     /*DoReaction().get(noteId).then((value) => {
       if(value != ""){
         result = const Icon(Icons.favorite)
@@ -77,13 +74,8 @@ class _TimeLinePage extends State<TimelinePage> {
         result = const Icon(Icons.favorite_outline)
       }
     });*/
-    String res = await DoReaction().get(noteId);
-    if(res != ""){
-      result = "yes";
-    }else{
-      result = "no";
-    }
-    return result;
+    Map<String,dynamic> res = await DoReaction().get(noteId);
+    return res;
   }
 
   @override
@@ -380,15 +372,15 @@ class _TimeLinePage extends State<TimelinePage> {
                                                             if (snapshottt
                                                                 .hasData) {
                                                               print(snapshottt.data);
-                                                              if(snapshottt.data=="yes") {
+                                                              if(snapshottt.data["status"]=="yes") {
                                                                 return Row(children:[const Icon(
                                                                     Icons
-                                                                        .favorite),Text(reactionCount)]);
+                                                                        .favorite),Text(snapshottt.data["reactions"])]);
                                                               }else{
-                                                                return Row(children:[const Icon(Icons.favorite_outline),Text(reactionCount)]);
+                                                                return Row(children:[const Icon(Icons.favorite_outline),Text(snapshottt.data["reactions"])]);
                                                               }
                                                             } else {
-                                                              return Row(children:[const Icon(Icons.favorite_outline),Text(reactionCount)]);
+                                                              return Row(children:[const Icon(Icons.favorite_outline),Text(snapshottt.data["reactions"])]);
                                                             }
                                                           })),
                                                           TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "その他メニュー",fontSize: 18)},child: const Icon(Icons.more_horiz))
@@ -427,36 +419,6 @@ class _TimeLinePage extends State<TimelinePage> {
     //super.didChangeDependencies();
     MyApp().firstAddEmojis();
     return;
-    Future(() async {
-      String? host;
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text("絵文字DL元のサーバーURLを入力"),
-          content: TextFormField(
-            onFieldSubmitted: (data) {
-              host = data;
-              Navigator.of(context).pop();
-            },
-            decoration: const InputDecoration(
-                hintText:
-                "Please input misskey server host (such as misskey.io) to fetch emojis."),
-          ),
-        ),
-      );
-      if (host == null) return;
-
-      final response = await http.get(
-          Uri(scheme: "https", host: host, pathSegments: ["api", "emojis"]));
-      setState(() {
-        emojiList.addAll(Map.fromEntries(
-            (jsonDecode(response.body)["emojis"] as List)
-                .map((e) => MapEntry(e["name"] as String, e["url"] as String))));
-        focusNode.requestFocus();
-      });
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString("emojis", jsonEncode(emojiList).toString());
-    });
   }
   Widget checkImageOrText(text, image){
     if (kDebugMode) {
