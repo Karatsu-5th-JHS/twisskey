@@ -83,24 +83,6 @@ class _newTweet extends State<newTweet>{
           )
         ],
       ),
-        bottomNavigationBar: BottomAppBar(
-            child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 1.0),
-                  child: Row(
-                    children: [
-                      IconButton(onPressed: ()=>{
-                        selectImage().then((value) => (){
-                          if (kDebugMode) {
-                            print("select?");
-                          }
-                        })
-                      }, icon: const Icon(Icons.image),color: Colors.blue,)
-                    ],
-                  )
-                )
-            )
-        ),
       body: Center(child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: sizeWidth - 20, maxHeight: sizeHeight),
         child: Column(
