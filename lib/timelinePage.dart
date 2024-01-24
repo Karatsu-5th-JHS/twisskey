@@ -125,6 +125,7 @@ class _TimeLinePage extends State<TimelinePage> {
 
   @override
   Widget build(BuildContext context) {
+    timeago.setLocaleMessages("ja", timeago.JaMessages());
     return Scaffold(
         appBar: AppBar(
           title: const Row(children: [
@@ -267,15 +268,28 @@ class _TimeLinePage extends State<TimelinePage> {
                                 child: Container(
                                     padding: const EdgeInsets.only(left: 8.0,bottom: 8.0,right:8.0),
                                     child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                         children:[
-                                          Text(Renote, style: const TextStyle(color: Colors.green)),
+                                          Mfm(mfmText: Renote, style: const TextStyle(color: Colors.green),emojiBuilder: (context, emoji, style) {
+                                            final emojiData = emojiList[emoji];
+                                            if (emojiData == null) {
+                                              return Text.rich(TextSpan(text: emoji, style: style));
+                                            } else {
+                                              // show emojis if emoji data found
+                                              return CachedNetworkImage(imageUrl: emojiData,imageBuilder: (context,imageProvider)=>
+                                                  Image(image: imageProvider,
+                                                    height: (style?.fontSize ?? 1),
+                                                  ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                                  CircularProgressIndicator(value: downloadProgress.progress),);
+                                            }
+                                          },),
                                           Row(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               CachedNetworkImage(imageUrl: avatar,imageBuilder: (context, imageProvider)=>CircleAvatar(
                                                 backgroundImage: imageProvider,
                                                 radius: 24,
-                                              ),),
+                                              ),errorWidget: (context, url, dynamic error) => const Icon(Icons.error)),
                                               const SizedBox(width: 8.0),
                                               Flexible(
                                                 child: Column(
@@ -298,7 +312,7 @@ class _TimeLinePage extends State<TimelinePage> {
                                                                     return CachedNetworkImage(imageUrl: emojiData,imageBuilder: (context,imageProvider)=>
                                                                         Image(image: imageProvider,
                                                                         height: (style?.fontSize ?? 1) * 2,
-                                                                    ),);
+                                                                    ),errorWidget: (context, url, dynamic error) => const Icon(Icons.error));
                                                                   }
                                                                 })
                                                               /*Text(
@@ -390,14 +404,14 @@ class _TimeLinePage extends State<TimelinePage> {
                                                                 .hasData) {
                                                               print(snapshottt.data);
                                                               if(snapshottt.data=="yes") {
-                                                                return Icon(
+                                                                return const Icon(
                                                                     Icons
                                                                         .favorite);
                                                               }else{
                                                                 return Icon(Icons.favorite_outline);
                                                               }
                                                             } else {
-                                                              return Icon(Icons
+                                                              return const Icon(Icons
                                                                   .favorite_outline);
                                                             }
                                                           })),
