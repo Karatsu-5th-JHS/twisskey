@@ -84,7 +84,7 @@ class _TimeLinePage extends State<TimelinePage> {
       result = "no";
     }
     return result;
-}
+  }
 
   //絵文字の更新 Update emojis
   void updateEmojisFromServer() {
@@ -145,11 +145,22 @@ class _TimeLinePage extends State<TimelinePage> {
         drawer: Drawer(
           child: ListView(
             children: <Widget>[
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-                child: Text('Drawer Header'),
+              FutureBuilder(
+                future: sysAccount().getUserInfo(),
+                builder: (BuildContext context, AsyncSnapshot<Map<String,dynamic>> ss) {
+                  if(ss.connectionState != ConnectionState.done){
+                    return const UserAccountsDrawerHeader(accountName: Text("アカウントの情報取得に失敗しました"), accountEmail: Text("Unknown"),);
+                  }
+                  if(ss.hasData) {
+                    return UserAccountsDrawerHeader(accountName: Text(ss.data?["name"]),
+                      accountEmail: Text("@"+ss.data?["username"]),currentAccountPicture: CachedNetworkImage(imageUrl: ss.data?["avatarUrl"],imageBuilder: (context,imageProvider)=>
+                          CircleAvatar(backgroundImage: imageProvider,
+                          ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+                          CircularProgressIndicator(value: downloadProgress.progress),));
+                  }else{
+                    return const UserAccountsDrawerHeader(accountName: Text("アカウントの情報取得に失敗しました"), accountEmail: Text("Unknown"),);
+                  }
+                },
               ),
               ListTile(
                 title: const Text('About'),
