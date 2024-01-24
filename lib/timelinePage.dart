@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:blur/blur.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mfm/mfm.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -87,6 +89,8 @@ class _TimeLinePage extends State<TimelinePage> {
   //絵文字の更新 Update emojis
   void updateEmojisFromServer() {
     //super.didChangeDependencies();
+    MyApp().firstAddEmojis();
+    return;
     Future(() async {
       String? host;
       await showDialog(
@@ -158,6 +162,7 @@ class _TimeLinePage extends State<TimelinePage> {
                 onTap: () {
                   // Do something
                   logout();
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {return MyApp();}));
                 },
               ),
             ],
@@ -211,7 +216,7 @@ class _TimeLinePage extends State<TimelinePage> {
                           itemCount: snapshot.data!.length,
                           separatorBuilder: (BuildContext context, int index) => Divider(color: Colors.grey.shade400,),
                           itemBuilder: (context, index){
-                            late Future<dynamic> react;
+                            late Future<dynamic> _react;
                             var feed = snapshot.data![index];
                             if(feed == null){
                               exit(0);
@@ -230,6 +235,7 @@ class _TimeLinePage extends State<TimelinePage> {
                             }
                             final text = feed["text"];
                             final author = feed["user"];
+                            final String avatar = feed["user"]["avatarUrl"];
                             final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
                             final id = feed["id"].toString();
                             /*final int isRenote = await DoingRenote().check(id);
@@ -245,8 +251,14 @@ class _TimeLinePage extends State<TimelinePage> {
                               author["name"] = "";
                             }
 
-                            react = getIcon(feed["id"]);
-
+                            _react = getIcon(feed["id"]);
+                            /*if(feed["emojis"]!=null && feed["emojis"]!=[] && feed["emojis"]!={}) {
+                              Map<String,String> e = {};
+                              Map<String,dynamic> b = feed["emojis"];
+                              print(b);
+                              e = b.map((key, value) => MapEntry(key, value.toString()));
+                              emojiList.addAll(e);
+                            }*/
                             return Column(children: [
                               InkWell(
                                 onTap: () => {
@@ -260,10 +272,10 @@ class _TimeLinePage extends State<TimelinePage> {
                                           Row(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              CircleAvatar(
-                                                backgroundImage: NetworkImage(author['avatarUrl']),
+                                              CachedNetworkImage(imageUrl: avatar,imageBuilder: (context, imageProvider)=>CircleAvatar(
+                                                backgroundImage: imageProvider,
                                                 radius: 24,
-                                              ),
+                                              ),),
                                               const SizedBox(width: 8.0),
                                               Flexible(
                                                 child: Column(
@@ -283,10 +295,10 @@ class _TimeLinePage extends State<TimelinePage> {
                                                                     return Text.rich(TextSpan(text: emoji, style: style));
                                                                   } else {
                                                                     // show emojis if emoji data found
-                                                                    return Image.network(
-                                                                      emojiData,
-                                                                      height: (style?.fontSize ?? 1) * 2,
-                                                                    );
+                                                                    return CachedNetworkImage(imageUrl: emojiData,imageBuilder: (context,imageProvider)=>
+                                                                        Image(image: imageProvider,
+                                                                        height: (style?.fontSize ?? 1) * 2,
+                                                                    ),);
                                                                   }
                                                                 })
                                                               /*Text(
@@ -362,11 +374,11 @@ class _TimeLinePage extends State<TimelinePage> {
                                                               ],
                                                             ),
                                                           ),
-                                                          TextButton(onPressed: () async {DoReaction().check(feed["id"], "❤");setState(() {
-                                                            react = getIcon(feed["id"]);
-                                                          });},
+                                                          TextButton(onPressed: () {DoReaction().check(feed["id"], "❤").then((value) => setState(() {
+                                                            _react = getIcon(feed["id"]);
+                                                          }));},
                                                               child: FutureBuilder<dynamic>(
-                                                                  future: react,
+                                                                  future: _react,
                                                                   builder: (BuildContext context, AsyncSnapshot<dynamic> snapshottt) {
                                                             if (snapshottt
                                                                 .connectionState !=
@@ -439,10 +451,11 @@ class _TimeLinePage extends State<TimelinePage> {
                   return Text.rich(TextSpan(text: emoji, style: style));
                 } else {
                   // show emojis if emoji data found
-                  return Image.network(
-                    emojiData,
-                    height: (style?.fontSize ?? 1) * 2,
-                  );
+                  return CachedNetworkImage(imageUrl: emojiData,imageBuilder: (context,imageProvider)=>
+                      Image(image: imageProvider,
+                        height: (style?.fontSize ?? 1) * 2,
+                      ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+                      CircularProgressIndicator(value: downloadProgress.progress),);
                 }
               },
               searchTap: (content){
@@ -476,10 +489,11 @@ class _TimeLinePage extends State<TimelinePage> {
             return Text.rich(TextSpan(text: emoji, style: style));
           } else {
             // show emojis if emoji data found
-            return Image.network(
-              emojiData,
-              height: (style?.fontSize ?? 1) * 2,
-            );
+            return CachedNetworkImage(imageUrl: emojiData,imageBuilder: (context,imageProvider)=>
+                Image(image: imageProvider,
+                  height: (style?.fontSize ?? 1) * 2,
+                ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+                CircularProgressIndicator(value: downloadProgress.progress),);
           }
         },
         searchTap: (content){
@@ -516,11 +530,21 @@ class _TimeLinePage extends State<TimelinePage> {
         child: SizedBox(
           height: 300,
           width: 300,
-          child: Image.network(image,width: 300,height: 300),
+          child: CachedNetworkImage(imageUrl: image,imageBuilder: (context,imageProvider)=>
+              Image(image: imageProvider,
+                width: 300,
+                height: 300,
+              ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+              CircularProgressIndicator(value: downloadProgress.progress),),
         ),
       ));
     }else{
-      return Image.network(image,width: 300,height: 300);
+      return  CachedNetworkImage(imageUrl: image,imageBuilder: (context,imageProvider)=>
+          Image(image: imageProvider,
+            width: 300,
+            height: 300,
+          ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+          CircularProgressIndicator(value: downloadProgress.progress),);
     }
   }
 
