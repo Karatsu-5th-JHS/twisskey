@@ -86,43 +86,6 @@ class _TimeLinePage extends State<TimelinePage> {
     return result;
   }
 
-  //絵文字の更新 Update emojis
-  void updateEmojisFromServer() {
-    //super.didChangeDependencies();
-    MyApp().firstAddEmojis();
-    return;
-    Future(() async {
-      String? host;
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text("絵文字DL元のサーバーURLを入力"),
-          content: TextFormField(
-            onFieldSubmitted: (data) {
-              host = data;
-              Navigator.of(context).pop();
-            },
-            decoration: const InputDecoration(
-                hintText:
-                "Please input misskey server host (such as misskey.io) to fetch emojis."),
-          ),
-        ),
-      );
-      if (host == null) return;
-
-      final response = await http.get(
-          Uri(scheme: "https", host: host, pathSegments: ["api", "emojis"]));
-      setState(() {
-        emojiList.addAll(Map.fromEntries(
-            (jsonDecode(response.body)["emojis"] as List)
-                .map((e) => MapEntry(e["name"] as String, e["url"] as String))));
-        focusNode.requestFocus();
-      });
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString("emojis", jsonEncode(emojiList).toString());
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     timeago.setLocaleMessages("ja", timeago.JaMessages());
@@ -229,6 +192,7 @@ class _TimeLinePage extends State<TimelinePage> {
                           separatorBuilder: (BuildContext context, int index) => Divider(color: Colors.grey.shade400,),
                           itemBuilder: (context, index){
                             late Future<dynamic> _react;
+                            late String reactionCount = "0";
                             var feed = snapshot.data![index];
                             if(feed == null){
                               exit(0);
@@ -264,6 +228,7 @@ class _TimeLinePage extends State<TimelinePage> {
                             }
 
                             _react = getIcon(feed["id"]);
+                            DoReaction().getReactions(feed["id"]).then((e)=>reactionCount=e);
                             /*if(feed["emojis"]!=null && feed["emojis"]!=[] && feed["emojis"]!={}) {
                               Map<String,String> e = {};
                               Map<String,dynamic> b = feed["emojis"];
@@ -400,6 +365,7 @@ class _TimeLinePage extends State<TimelinePage> {
                                                             ),
                                                           ),
                                                           TextButton(onPressed: () {DoReaction().check(feed["id"], "❤").then((value) => setState(() {
+                                                            DoReaction().getReactions(feed["id"]).then((e)=>reactionCount = e);
                                                             _react = getIcon(feed["id"]);
                                                           }));},
                                                               child: FutureBuilder<dynamic>(
@@ -409,21 +375,20 @@ class _TimeLinePage extends State<TimelinePage> {
                                                                 .connectionState !=
                                                                 ConnectionState
                                                                     .done) {
-                                                              return Icon(Icons.favorite_outline);
+                                                              return Row(children:[const Icon(Icons.favorite_outline),Text(reactionCount)]);
                                                             }
                                                             if (snapshottt
                                                                 .hasData) {
                                                               print(snapshottt.data);
                                                               if(snapshottt.data=="yes") {
-                                                                return const Icon(
+                                                                return Row(children:[const Icon(
                                                                     Icons
-                                                                        .favorite);
+                                                                        .favorite),Text(reactionCount)]);
                                                               }else{
-                                                                return Icon(Icons.favorite_outline);
+                                                                return Row(children:[const Icon(Icons.favorite_outline),Text(reactionCount)]);
                                                               }
                                                             } else {
-                                                              return const Icon(Icons
-                                                                  .favorite_outline);
+                                                              return Row(children:[const Icon(Icons.favorite_outline),Text(reactionCount)]);
                                                             }
                                                           })),
                                                           TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "その他メニュー",fontSize: 18)},child: const Icon(Icons.more_horiz))
@@ -455,6 +420,43 @@ class _TimeLinePage extends State<TimelinePage> {
             )
         )
     );
+  }
+
+  //絵文字の更新 Update emojis
+  void updateEmojisFromServer() {
+    //super.didChangeDependencies();
+    MyApp().firstAddEmojis();
+    return;
+    Future(() async {
+      String? host;
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("絵文字DL元のサーバーURLを入力"),
+          content: TextFormField(
+            onFieldSubmitted: (data) {
+              host = data;
+              Navigator.of(context).pop();
+            },
+            decoration: const InputDecoration(
+                hintText:
+                "Please input misskey server host (such as misskey.io) to fetch emojis."),
+          ),
+        ),
+      );
+      if (host == null) return;
+
+      final response = await http.get(
+          Uri(scheme: "https", host: host, pathSegments: ["api", "emojis"]));
+      setState(() {
+        emojiList.addAll(Map.fromEntries(
+            (jsonDecode(response.body)["emojis"] as List)
+                .map((e) => MapEntry(e["name"] as String, e["url"] as String))));
+        focusNode.requestFocus();
+      });
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString("emojis", jsonEncode(emojiList).toString());
+    });
   }
   Widget checkImageOrText(text, image){
     if (kDebugMode) {

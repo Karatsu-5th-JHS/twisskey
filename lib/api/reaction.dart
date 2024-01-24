@@ -74,4 +74,18 @@ class DoReaction{
       return a;
     }
   }
+
+  Future<String> getReactions(String noteId) async {
+    var token = await sysAccount().getToken();
+    var host = await sysAccount().getHost();
+    var info = await sysAccount().getUserInfo();
+    var id = info["id"];
+    final Uri uri = Uri.parse("https://$host/api/notes/reactions");
+    Map<String, String> headers = {'Content-Type': 'application/json',"charset":'UTF-8'};
+    final body = {"noteId": noteId,"i":token};
+    final response = await http.post(uri,headers: headers, body: jsonEncode(body));
+    final String res = response.body;
+    List<dynamic> list = jsonDecode(res);
+    return list.length.toString();
+  }
 }
