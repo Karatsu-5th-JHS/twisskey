@@ -26,6 +26,8 @@ flutter_icons:
   android: true
   ios: true
   image_path: "asset/twisskey.png"
+  adaptive_icon_background: "#ffffff"
+  remove_alpha_ios: true
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
@@ -115,3 +117,4 @@ flutter:
   assets:
     - asset/tkngh.png
     - asset/twisskey.png
+    - asset/background.png
