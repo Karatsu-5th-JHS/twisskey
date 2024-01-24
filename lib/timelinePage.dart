@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:blur/blur.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mfm/mfm.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/api/reaction.dart';
 
@@ -67,7 +67,6 @@ class _TimeLinePage extends State<TimelinePage> {
   }
 
   Future<dynamic> getIcon(String noteId) async {
-    var result = "";
     /*DoReaction().get(noteId).then((value) => {
       if(value != ""){
         result = const Icon(Icons.favorite)
@@ -75,52 +74,13 @@ class _TimeLinePage extends State<TimelinePage> {
         result = const Icon(Icons.favorite_outline)
       }
     });*/
-    String res = await DoReaction().get(noteId);
-    if(res != ""){
-      result = "yes";
-    }else{
-      result = "no";
-    }
-    return result;
-}
-
-  //絵文字の更新 Update emojis
-  void updateEmojisFromServer() {
-    //super.didChangeDependencies();
-    Future(() async {
-      String? host;
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text("絵文字DL元のサーバーURLを入力"),
-          content: TextFormField(
-            onFieldSubmitted: (data) {
-              host = data;
-              Navigator.of(context).pop();
-            },
-            decoration: const InputDecoration(
-                hintText:
-                "Please input misskey server host (such as misskey.io) to fetch emojis."),
-          ),
-        ),
-      );
-      if (host == null) return;
-
-      final response = await http.get(
-          Uri(scheme: "https", host: host, pathSegments: ["api", "emojis"]));
-      setState(() {
-        emojiList.addAll(Map.fromEntries(
-            (jsonDecode(response.body)["emojis"] as List)
-                .map((e) => MapEntry(e["name"] as String, e["url"] as String))));
-        focusNode.requestFocus();
-      });
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString("emojis", jsonEncode(emojiList).toString());
-    });
+    Map<String,dynamic> res = await DoReaction().get(noteId);
+    return res;
   }
 
   @override
   Widget build(BuildContext context) {
+    timeago.setLocaleMessages("ja", timeago.JaMessages());
     return Scaffold(
         appBar: AppBar(
           title: const Row(children: [
@@ -140,11 +100,22 @@ class _TimeLinePage extends State<TimelinePage> {
         drawer: Drawer(
           child: ListView(
             children: <Widget>[
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-                child: Text('Drawer Header'),
+              FutureBuilder(
+                future: sysAccount().getUserInfo(),
+                builder: (BuildContext context, AsyncSnapshot<Map<String,dynamic>> ss) {
+                  if(ss.connectionState != ConnectionState.done){
+                    return const UserAccountsDrawerHeader(accountName: Text("アカウントの情報取得に失敗しました"), accountEmail: Text("Unknown"),);
+                  }
+                  if(ss.hasData) {
+                    return UserAccountsDrawerHeader(accountName: Text(ss.data?["name"]),
+                      accountEmail: Text("@"+ss.data?["username"]),currentAccountPicture: CachedNetworkImage(imageUrl: ss.data?["avatarUrl"],imageBuilder: (context,imageProvider)=>
+                          CircleAvatar(backgroundImage: imageProvider,
+                          ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+                          CircularProgressIndicator(value: downloadProgress.progress),));
+                  }else{
+                    return const UserAccountsDrawerHeader(accountName: Text("アカウントの情報取得に失敗しました"), accountEmail: Text("Unknown"),);
+                  }
+                },
               ),
               ListTile(
                 title: const Text('About'),
@@ -158,6 +129,7 @@ class _TimeLinePage extends State<TimelinePage> {
                 onTap: () {
                   // Do something
                   logout();
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {return MyApp();}));
                 },
               ),
             ],
@@ -211,7 +183,8 @@ class _TimeLinePage extends State<TimelinePage> {
                           itemCount: snapshot.data!.length,
                           separatorBuilder: (BuildContext context, int index) => Divider(color: Colors.grey.shade400,),
                           itemBuilder: (context, index){
-                            late Future<dynamic> react;
+                            late Future<dynamic> _react;
+                            late String reactionCount = "0";
                             var feed = snapshot.data![index];
                             if(feed == null){
                               exit(0);
@@ -230,6 +203,7 @@ class _TimeLinePage extends State<TimelinePage> {
                             }
                             final text = feed["text"];
                             final author = feed["user"];
+                            final String avatar = feed["user"]["avatarUrl"];
                             final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
                             final id = feed["id"].toString();
                             /*final int isRenote = await DoingRenote().check(id);
@@ -245,8 +219,15 @@ class _TimeLinePage extends State<TimelinePage> {
                               author["name"] = "";
                             }
 
-                            react = getIcon(feed["id"]);
-
+                            _react = getIcon(feed["id"]);
+                            DoReaction().getReactions(feed["id"]).then((e)=>reactionCount=e);
+                            /*if(feed["emojis"]!=null && feed["emojis"]!=[] && feed["emojis"]!={}) {
+                              Map<String,String> e = {};
+                              Map<String,dynamic> b = feed["emojis"];
+                              print(b);
+                              e = b.map((key, value) => MapEntry(key, value.toString()));
+                              emojiList.addAll(e);
+                            }*/
                             return Column(children: [
                               InkWell(
                                 onTap: () => {
@@ -255,15 +236,28 @@ class _TimeLinePage extends State<TimelinePage> {
                                 child: Container(
                                     padding: const EdgeInsets.only(left: 8.0,bottom: 8.0,right:8.0),
                                     child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                         children:[
-                                          Text(Renote, style: const TextStyle(color: Colors.green)),
+                                          Mfm(mfmText: Renote, style: const TextStyle(color: Colors.green),emojiBuilder: (context, emoji, style) {
+                                            final emojiData = emojiList[emoji];
+                                            if (emojiData == null) {
+                                              return Text.rich(TextSpan(text: emoji, style: style));
+                                            } else {
+                                              // show emojis if emoji data found
+                                              return CachedNetworkImage(imageUrl: emojiData,imageBuilder: (context,imageProvider)=>
+                                                  Image(image: imageProvider,
+                                                    height: (style?.fontSize ?? 1),
+                                                  ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                                  CircularProgressIndicator(value: downloadProgress.progress),);
+                                            }
+                                          },),
                                           Row(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              CircleAvatar(
-                                                backgroundImage: NetworkImage(author['avatarUrl']),
+                                              CachedNetworkImage(imageUrl: avatar,imageBuilder: (context, imageProvider)=>CircleAvatar(
+                                                backgroundImage: imageProvider,
                                                 radius: 24,
-                                              ),
+                                              ),errorWidget: (context, url, dynamic error) => const Icon(Icons.error)),
                                               const SizedBox(width: 8.0),
                                               Flexible(
                                                 child: Column(
@@ -283,10 +277,10 @@ class _TimeLinePage extends State<TimelinePage> {
                                                                     return Text.rich(TextSpan(text: emoji, style: style));
                                                                   } else {
                                                                     // show emojis if emoji data found
-                                                                    return Image.network(
-                                                                      emojiData,
-                                                                      height: (style?.fontSize ?? 1) * 2,
-                                                                    );
+                                                                    return CachedNetworkImage(imageUrl: emojiData,imageBuilder: (context,imageProvider)=>
+                                                                        Image(image: imageProvider,
+                                                                        height: (style?.fontSize ?? 1) * 2,
+                                                                    ),errorWidget: (context, url, dynamic error) => const Icon(Icons.error));
                                                                   }
                                                                 })
                                                               /*Text(
@@ -362,31 +356,31 @@ class _TimeLinePage extends State<TimelinePage> {
                                                               ],
                                                             ),
                                                           ),
-                                                          TextButton(onPressed: () async {DoReaction().check(feed["id"], "❤");setState(() {
-                                                            react = getIcon(feed["id"]);
-                                                          });},
+                                                          TextButton(onPressed: () {DoReaction().check(feed["id"], "❤").then((value) => setState(() {
+                                                            DoReaction().getReactions(feed["id"]).then((e)=>reactionCount = e);
+                                                            _react = getIcon(feed["id"]);
+                                                          }));},
                                                               child: FutureBuilder<dynamic>(
-                                                                  future: react,
+                                                                  future: _react,
                                                                   builder: (BuildContext context, AsyncSnapshot<dynamic> snapshottt) {
                                                             if (snapshottt
                                                                 .connectionState !=
                                                                 ConnectionState
                                                                     .done) {
-                                                              return Icon(Icons.favorite_outline);
+                                                              return Row(children:[const Icon(Icons.favorite_outline),Text(reactionCount)]);
                                                             }
                                                             if (snapshottt
                                                                 .hasData) {
                                                               print(snapshottt.data);
-                                                              if(snapshottt.data=="yes") {
-                                                                return Icon(
+                                                              if(snapshottt.data["status"]=="yes") {
+                                                                return Row(children:[const Icon(
                                                                     Icons
-                                                                        .favorite);
+                                                                        .favorite),Text(snapshottt.data["reactions"])]);
                                                               }else{
-                                                                return Icon(Icons.favorite_outline);
+                                                                return Row(children:[const Icon(Icons.favorite_outline),Text(snapshottt.data["reactions"])]);
                                                               }
                                                             } else {
-                                                              return Icon(Icons
-                                                                  .favorite_outline);
+                                                              return Row(children:[const Icon(Icons.favorite_outline),Text(snapshottt.data["reactions"])]);
                                                             }
                                                           })),
                                                           TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "その他メニュー",fontSize: 18)},child: const Icon(Icons.more_horiz))
@@ -419,6 +413,13 @@ class _TimeLinePage extends State<TimelinePage> {
         )
     );
   }
+
+  //絵文字の更新 Update emojis
+  void updateEmojisFromServer() {
+    //super.didChangeDependencies();
+    MyApp().firstAddEmojis();
+    return;
+  }
   Widget checkImageOrText(text, image){
     if (kDebugMode) {
       print(image);
@@ -439,10 +440,11 @@ class _TimeLinePage extends State<TimelinePage> {
                   return Text.rich(TextSpan(text: emoji, style: style));
                 } else {
                   // show emojis if emoji data found
-                  return Image.network(
-                    emojiData,
-                    height: (style?.fontSize ?? 1) * 2,
-                  );
+                  return CachedNetworkImage(imageUrl: emojiData,imageBuilder: (context,imageProvider)=>
+                      Image(image: imageProvider,
+                        height: (style?.fontSize ?? 1) * 2,
+                      ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+                      CircularProgressIndicator(value: downloadProgress.progress),);
                 }
               },
               searchTap: (content){
@@ -476,10 +478,11 @@ class _TimeLinePage extends State<TimelinePage> {
             return Text.rich(TextSpan(text: emoji, style: style));
           } else {
             // show emojis if emoji data found
-            return Image.network(
-              emojiData,
-              height: (style?.fontSize ?? 1) * 2,
-            );
+            return CachedNetworkImage(imageUrl: emojiData,imageBuilder: (context,imageProvider)=>
+                Image(image: imageProvider,
+                  height: (style?.fontSize ?? 1) * 2,
+                ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+                CircularProgressIndicator(value: downloadProgress.progress),);
           }
         },
         searchTap: (content){
@@ -516,11 +519,21 @@ class _TimeLinePage extends State<TimelinePage> {
         child: SizedBox(
           height: 300,
           width: 300,
-          child: Image.network(image,width: 300,height: 300),
+          child: CachedNetworkImage(imageUrl: image,imageBuilder: (context,imageProvider)=>
+              Image(image: imageProvider,
+                width: 300,
+                height: 300,
+              ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+              CircularProgressIndicator(value: downloadProgress.progress),),
         ),
       ));
     }else{
-      return Image.network(image,width: 300,height: 300);
+      return  CachedNetworkImage(imageUrl: image,imageBuilder: (context,imageProvider)=>
+          Image(image: imageProvider,
+            width: 300,
+            height: 300,
+          ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+          CircularProgressIndicator(value: downloadProgress.progress),);
     }
   }
 

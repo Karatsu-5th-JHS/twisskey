@@ -99,7 +99,7 @@ class _notion extends State<notion> {
                       //タイプ判別
                       var matsubi = "";
                       var user = "";
-
+                      var noteText = "";
                       if(feed['type']=="app") {
                         matsubi = feed["body"];
                         user = feed["header"];
@@ -116,17 +116,30 @@ class _notion extends State<notion> {
                       }
                       var id = "0x0000";
                       if(feed['type']=="reaction") {
-                        matsubi = "このノートが$userにリアクションされました";
+                        if(feed['note']["text"] != null){
+                          noteText = feed['note']["text"];
+                        }else{
+                          noteText = "画像のみの投稿です。";
+                        }
+                        matsubi = noteText;
                         icons = const Icon(Icons.add);
                         id = feed["note"]["id"];
                       }else if(feed['type']=="renote"){
-                        matsubi = "このノートが$userにリノートされました";
+                        if(feed['note']["renote"]["text"] != null){
+                          noteText = feed['note']["renote"]["text"];
+                        }else{
+                          noteText = "画像のみの投稿です。";
+                        }
+                        matsubi = noteText;
                         icons = const Icon(Icons.repeat);
                         id = feed["note"]["id"];
                       }else if(feed['type']=="note") {
                         matsubi = "$userの新しいノート";
                         icons = const Icon(Icons.comment_outlined);
                         id = feed["note"]["id"];
+                      }else if(feed["type"]=="followRequestAccepted"){
+                        matsubi = "フォローが承認されました";
+                        icons = const Icon(Icons.check_circle_outlined);
                       }else{
                         matsubi = "通知を認識できませんでした";
                         icons = const Icon(Icons.question_mark);
@@ -189,7 +202,7 @@ class _notion extends State<notion> {
                                               const SizedBox(height: 10.0),
                                               /*Text(text,
                                             style: const TextStyle(fontSize: 15.0)),*/
-                                              Mfm(mfmText: text),
+                                              Text(matsubi,overflow: TextOverflow.ellipsis,),
                                             ],
                                           ),
                                         ),

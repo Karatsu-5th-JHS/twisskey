@@ -46,7 +46,12 @@ class SystemAbout extends StatelessWidget{
     if(kDebugMode){
       text = "${text} | bata";
     }
-    text = base + text + "\n\nこのアプリは、**Miria**で使われている[Mfm_parser](https://pub.dev/packages/mfm_parser)を利用しています。]\n\nApplication created by: 德永皓斗\n対応OS: Android 5.2以上 / iOS 12以上";
+    text = base + text + "\n\nこのアプリは、**Miria**で使われている[Mfm_parser](https://pub.dev/packages/mfm_parser)を利用しています。]\n\nApplication created by: 德永皓斗\n対応OS: Android 5.2以上 / iOS 12以上"
+        "\n"
+        "\n"
+        "Language: Flutter\n"
+        "Dev. env: Android Studio 2023.1.1 on Windows 11\n"
+        "Github: [唐津第五中学校/Twisskey](https://github.com/Karatsu-5th-JHS/twisskey)";
     return text;
   }
 }

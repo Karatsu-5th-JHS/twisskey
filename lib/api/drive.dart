@@ -1,8 +1,8 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:twisskey/api/myAccount.dart';
@@ -27,7 +27,6 @@ class DriveControl{
       ],
       token: token
     );
-    print("drive response:" + res.body);
     Map<String, dynamic> map = json.decode(res.body);
     if(map["error"]!=null) {
       Fluttertoast.showToast(msg: "アップロードに失敗しました", fontSize: 18);
@@ -66,13 +65,14 @@ class DriveControl{
     var token = await sysAccount().getToken();
     var host = await sysAccount().getHost();
     final Uri uri = Uri.parse("https://$host/api/drive/files/show");
-    final request = http.post(uri);
     Map<String, String> headers = {'Content-Type': 'application/json',"charset":'UTF-8'};
     final body = {"fileId": id, "i":token};
     final response = await http.post(uri,headers: headers, body: jsonEncode(body));
     final res = response.body;
-    print(res);
-    if(res == null || res == ""){
+    if (kDebugMode) {
+      print(res);
+    }
+    if(res == ""){
       return "fail";
     }
     final Map<String, dynamic>map = jsonDecode(res);
