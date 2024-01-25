@@ -62,6 +62,7 @@ dependencies:
   cached_network_image: ^3.3.1
   flutter_launcher_icons: ^0.13.1
   video_player: ^2.8.2
+  logger: ^2.0.2+1
 
 dev_dependencies:
   flutter_test:
