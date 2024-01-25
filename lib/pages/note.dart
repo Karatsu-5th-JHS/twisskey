@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:blur/blur.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,6 +12,7 @@ import 'package:twisskey/api/reaction.dart';
 import 'package:twisskey/api/renote.dart';
 import 'package:twisskey/main.dart';
 import 'package:http/http.dart' as http;
+import 'package:twisskey/pages/viewImage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -359,22 +361,37 @@ class _noteViewPage extends State<viewNote>{
   Widget isNeedBlur(sensitiveFlug){
     var image = sensitiveFlug["url"];
     var sf = sensitiveFlug["isSensitive"];
-    if (kDebugMode) {
-      print("isSensitive:$sf");
-    }
+    sf = false;
     if(sf == true){
       if (kDebugMode) {
         print("Blur skip");
       }
-      return Blur(
+      return GestureDetector(child:Blur(
+        blur: 20,
         child: SizedBox(
           height: 300,
           width: 300,
-          child: Image.network(image,width: 300,height: 300),
+          child: CachedNetworkImage(imageUrl: image,imageBuilder: (context,imageProvider)=>
+              Image(image: imageProvider,
+                width: 300,
+                height: 300,
+              ),progressIndicatorBuilder: (context, url, downloadProgress) =>
+              CircularProgressIndicator(value: downloadProgress.progress),),
         ),
+      ),
+        onTap: ()=>{Fluttertoast.showToast(msg: "センシティブ画像は詳細からのみプレビューできます")},
       );
     }else{
-      return Image.network(image,width: 300,height: 300);
+      return GestureDetector(
+        child:CachedNetworkImage(imageUrl: image,imageBuilder: (context,imageProvider)=>
+            Image(image: imageProvider,
+              width: 300,
+              height: 300,
+            ),
+          progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
+        ),
+        onTap: ()=>{viewImageOnDialog(context: context,uri: image)},
+      );
     }
   }
 }
