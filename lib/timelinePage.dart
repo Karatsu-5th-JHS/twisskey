@@ -121,6 +121,14 @@ class _TimeLinePage extends State<TimelinePage> {
                 },
               ),
               ListTile(
+                title: const Text('Configuration'),
+                onTap: () {
+                  // Do something
+                  Fluttertoast.showToast(msg: "設定は開くように設定されていないため設定を開くことができませんでした。");
+                  //Navigator.push(context,MaterialPageRoute(builder: (context)=>const SystemAbout()));
+                },
+              ),
+              ListTile(
                 title: const Text('About'),
                 onTap: () {
                   // Do something
