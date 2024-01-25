@@ -19,6 +19,7 @@ import 'package:http/http.dart' as http;
 import 'package:twisskey/pages/about_system.dart';
 import 'package:twisskey/pages/note.dart';
 import 'package:twisskey/pages/notion.dart';
+import 'package:twisskey/pages/reply.dart';
 import 'package:twisskey/pages/viewImage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -189,9 +190,15 @@ class _TimeLinePage extends State<TimelinePage> {
                               exit(0);
                             }
                             var Renote = "";
+
+                            /*Temporary Username*/
+                            var tu = feed["user"]["name"];
+                            if(tu==null){
+                              tu = feed["user"]["username"];
+                            }
                             if(feed["text"] == null){
                               if((!(feed["renoteId"]?.isEmpty ?? true)) && (feed["fileids"]?.isEmpty ?? true)) {
-                                Renote = feed["user"]["name"] + "さんがRenoteしました";
+                                Renote = "$tuさんがRenoteしました";
                                 feed = feed["renote"];
                                 if(feed["text"] == null){
                                   feed["text"] = null;
@@ -205,11 +212,6 @@ class _TimeLinePage extends State<TimelinePage> {
                             final String avatar = feed["user"]["avatarUrl"];
                             final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
                             final id = feed["id"].toString();
-                            /*final int isRenote = await DoingRenote().check(id);
-                            if (kDebugMode) {
-                              print(isRenote);
-                            }
-                            */
                             var instance = "";
                             if(feed["user"]["host"] != null){
                               instance = '@${feed["user"]["host"]}';
@@ -217,7 +219,6 @@ class _TimeLinePage extends State<TimelinePage> {
                             if(author["name"]==null){
                               author["name"] = "";
                             }
-
                             _react = getIcon(feed["id"]);
                             DoReaction().getReactions(feed["id"]).then((e)=>reactionCount=e);
                             /*if(feed["emojis"]!=null && feed["emojis"]!=[] && feed["emojis"]!={}) {
@@ -309,7 +310,9 @@ class _TimeLinePage extends State<TimelinePage> {
                                                       Row(
                                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                         children: [
-                                                          TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "リプライ",fontSize: 18)}, child: const Icon(Icons.reply)),
+                                                          TextButton(onPressed: ()=>{
+                                                            Navigator.push(context,MaterialPageRoute(builder: (context){return Reply(id: feed["id"],);}))
+                                                          }, child: const Icon(Icons.reply)),
                                                           TextButton(onPressed: () {
                                                             DoingRenote().check(id).then((value) => {
                                                               if(value == 1){
