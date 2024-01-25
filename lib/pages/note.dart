@@ -1,5 +1,6 @@
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:blur/blur.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mfm/mfm.dart';
 import 'package:twisskey/api/myAccount.dart';
+import 'package:twisskey/api/notes.dart';
 import 'package:twisskey/api/reaction.dart';
 import 'package:twisskey/api/renote.dart';
 import 'package:twisskey/main.dart';
@@ -79,10 +81,8 @@ class _noteViewPage extends State<viewNote>{
                     //exit(0);
                     return const Text("null");
                   }
-                  var Renote = "";
                   if(feed["text"] == null){
                     if((!(feed["renoteId"]?.isEmpty ?? true)) && (feed["fileids"]?.isEmpty ?? true)) {
-                      Renote = feed["user"]["name"] + "さんがRenoteしました";
                       feed = feed["renote"];
                       if(feed["text"] == null){
                         feed["text"] = null;
@@ -110,7 +110,7 @@ class _noteViewPage extends State<viewNote>{
                         padding: const EdgeInsets.only(left: 8.0,bottom: 8.0,right:8.0),
                         child: Column(
                           children:[
-                            Text(Renote, style: const TextStyle(color: Colors.green)),
+                            showReply(feed["reply"]),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -235,7 +235,7 @@ class _noteViewPage extends State<viewNote>{
                                                 TextButton(onPressed: ()=>{Fluttertoast.showToast(msg: "その他メニュー",fontSize: 18)},child: const Icon(Icons.more_horiz))
                                               ]
                                           ),
-                                  ],
+                                        ],
     )
     ),
     ),
@@ -243,7 +243,13 @@ class _noteViewPage extends State<viewNote>{
     ),
     ])),
     ),
-                  const Divider(height: 1, thickness: 1, color: Colors.white12)
+                  const Divider(height: 1, thickness: 1, color: Colors.white12),
+                    Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.only(top: 10,bottom: 10),
+                      child: Text("返信一覧")
+                    ),
+                    showReplies(feed["id"])
     ]);
     }
     );
@@ -260,19 +266,15 @@ class _noteViewPage extends State<viewNote>{
   Future<dynamic> _fetchNote(id) async {
     var token = await sysAccount().getToken();
     var host = await sysAccount().getHost();
-    final Uri uri = Uri.parse("https://$host/api/notes/show");
+    Uri uri = Uri.parse("https://$host/api/notes/show");
     Map<String, String> headers = {'content-type': 'application/json'};
-    final response = await http.post(
+    var response = await http.post(
         uri, headers: headers, body: json.encode({"i": token, "noteId":id}));
-    final String res = "[${response.body}]";
+    String res = "[${response.body}]";
     if (kDebugMode) {
       print("Request showNotes: [$res]");
     }
     dynamic dj = jsonDecode(res);
-    /*if((dj["error"]?.isEmpty ?? true) == false){
-      print("logout");
-      logout();
-    }*/
     return dj;
   }
   Widget checkImageOrText(text, image){
@@ -395,5 +397,216 @@ class _noteViewPage extends State<viewNote>{
     }else{
       return TextButton(onPressed:(){} ,child: const Icon(Icons.play_circle_outlined));
     }
+  }
+
+  Widget showReply(feed) {
+    if(feed==null || feed==""){
+      return Container();
+    }
+    return FutureBuilder<dynamic>(
+        future: Note().fetchReply(feed["id"]),
+        builder: (context,snap){
+          if(snap.connectionState != ConnectionState.done){
+            return const Text("リプライの取得に失敗しました(接続に失敗しました)");
+          }
+          if(!snap.hasData){
+            return const Text("リプライの取得に失敗しました(データがありません)");
+          }
+          return ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: snap.data!.length,
+              separatorBuilder: (BuildContext context, int index) => Divider(color: Colors.grey.shade400,),
+              itemBuilder: (context, index){
+                var feed = snap.data![index];
+                if(feed == null){
+                  exit(0);
+                }
+                final text = feed["text"];
+                final author = feed["user"];
+                final String avatar = feed["user"]["avatarUrl"];
+                final id = feed["id"].toString();
+                var instance = "";
+                if(feed["user"]["host"] != null){
+                  instance = '@${feed["user"]["host"]}';
+                }
+                if(author["name"]==null){
+                  author["name"] = "";
+                }
+                return Column(children: [
+                  InkWell(
+                    onTap: () => {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>viewNote(noteId: id)))
+                    },
+                    child: Container(
+                        padding: const EdgeInsets.only(left: 8.0,bottom: 8.0,right:8.0),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children:[
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CachedNetworkImage(imageUrl: avatar,imageBuilder: (context, imageProvider)=>CircleAvatar(
+                                    backgroundImage: imageProvider,
+                                    radius: 24,
+                                  ),errorWidget: (context, url, dynamic error) => const Icon(Icons.error)),
+                                  const SizedBox(width: 8.0),
+                                  Flexible(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children:[
+                                        Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment. spaceAround,
+                                          children: [
+                                            Flexible(
+                                                child: Mfm(
+                                                    mfmText: "**${author["name"]}**",
+                                                    emojiBuilder: (context, emoji, style) {
+                                                      final emojiData = emojiList[emoji];
+                                                      if (emojiData == null) {
+                                                        return Text.rich(TextSpan(text: emoji, style: style));
+                                                      } else {
+                                                        return CachedNetworkImage(imageUrl: emojiData,imageBuilder: (context,imageProvider)=>
+                                                            Image(image: imageProvider,
+                                                              height: (style?.fontSize ?? 1) * 2,
+                                                            ),errorWidget: (context, url, dynamic error) => const Icon(Icons.error));
+                                                      }
+                                                    })
+                                            ),
+                                            Flexible(
+                                              child: Text(
+                                                '@${author['username']}$instance',
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            const Text(
+                                              "返信先",
+                                              style: TextStyle(fontSize: 12.0),
+                                              overflow: TextOverflow.clip,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10.0),
+                                        checkImageOrText(text, feed["files"]),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ])),
+                  ),
+                  const Divider(height: 1, thickness: 1, color: Colors.white12)
+                ]);
+              }
+          );
+        }
+    );
+  }
+  Widget showReplies(noteId){
+    return FutureBuilder<dynamic>(
+        future: Note().fetchReplies(noteId),
+        builder: (context,snap){
+          if(snap.connectionState != ConnectionState.done){
+            return const Text("リプライの取得に失敗しました(接続に失敗しました)");
+          }
+          if(!snap.hasData){
+            return const Text("リプライの取得に失敗しました(データがありません)");
+          }
+          return ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: snap.data!.length,
+              separatorBuilder: (BuildContext context, int index) => Divider(color: Colors.grey.shade400,),
+              itemBuilder: (context, index){
+                var feed = snap.data![index];
+                if(feed == null){
+                  exit(0);
+                }
+                final text = feed["text"];
+                final author = feed["user"];
+                final String avatar = feed["user"]["avatarUrl"];
+                final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
+                final id = feed["id"].toString();
+                var instance = "";
+                if(feed["user"]["host"] != null){
+                  instance = '@${feed["user"]["host"]}';
+                }
+                if(author["name"]==null){
+                  author["name"] = "";
+                }
+                return Column(children: [
+                  InkWell(
+                    onTap: () => {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>viewNote(noteId: id)))
+                    },
+                    child: Container(
+                        padding: const EdgeInsets.only(left: 8.0,bottom: 8.0,right:8.0),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children:[
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CachedNetworkImage(imageUrl: avatar,imageBuilder: (context, imageProvider)=>CircleAvatar(
+                                    backgroundImage: imageProvider,
+                                    radius: 24,
+                                  ),errorWidget: (context, url, dynamic error) => const Icon(Icons.error)),
+                                  const SizedBox(width: 8.0),
+                                  Flexible(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children:[
+                                        Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment. spaceAround,
+                                          children: [
+                                            Flexible(
+                                                child: Mfm(
+                                                    mfmText: "**${author["name"]}**",
+                                                    emojiBuilder: (context, emoji, style) {
+                                                      final emojiData = emojiList[emoji];
+                                                      if (emojiData == null) {
+                                                        return Text.rich(TextSpan(text: emoji, style: style));
+                                                      } else {
+                                                        return CachedNetworkImage(imageUrl: emojiData,imageBuilder: (context,imageProvider)=>
+                                                            Image(image: imageProvider,
+                                                              height: (style?.fontSize ?? 1) * 2,
+                                                            ),errorWidget: (context, url, dynamic error) => const Icon(Icons.error));
+                                                      }
+                                                    })
+                                            ),
+                                            Flexible(
+                                              child: Text(
+                                                '@${author['username']}$instance',
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            Text(
+                                              timeago.format(createdAt,locale: "ja"),
+                                              style: TextStyle(fontSize: 12.0),
+                                              overflow: TextOverflow.clip,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10.0),
+                                        checkImageOrText(text, feed["files"]),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ])),
+                  ),
+                  const Divider(height: 1, thickness: 1, color: Colors.white12)
+                ]);
+              }
+          );
+        }
+    );
   }
 }

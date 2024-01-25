@@ -32,7 +32,20 @@ class MyApp extends StatelessWidget {
 
   void firstAddEmojis(){
     Future(() async {
-      final host = {"misskey.io","m.tkngh.jp","momo.dosuto.net"};
+      final host = {
+        "misskey.io",
+        "m.tkngh.jp",
+        "momo.dosuto.net",
+        "mi.taichan.site",
+        "misskey.backspace.fm",
+        "stg.miria.shiosyakeyakini.info",
+        "mkkey.net",
+        "fw3rd-bc.jp",
+        "koliosky.com",
+        "misskey.network",
+        "exekey.net",
+        "k.lapy.link"
+      };
       for(var host in host){
           final response = await http.get(
           Uri(scheme: "https", host: host, pathSegments: ["api", "emojis"]));
@@ -48,12 +61,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'TKNGH for Android',
+      title: 'Twisskey',
       theme: ThemeData(
-          useMaterial3: true, colorScheme: lightColorScheme
-      ),
-      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
-      home: const MyHomePage(title: 'TKNGH'),
+          useMaterial3: true,
+          colorScheme: lightColorScheme,
+          primaryColor: lightColorScheme.primary),
+      darkTheme: ThemeData(
+          useMaterial3: true,
+          colorScheme: darkColorScheme,
+          primaryColor: darkColorScheme.primary),
+      themeMode: ThemeMode.system,
+      home: const MyHomePage(title: 'Twisskey'),
       supportedLocales: const [Locale('ja','JP')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -155,10 +173,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 }else{
                   return Column(
                     children: [
+                      const Text("将来的に自由にインスタンスを選択できます"),
                       DropdownButton(
                         //4
                         items: const [
                           //5
+                          DropdownMenuItem(
+                            value: 'misskey.io',
+                            child: Text('misskey.io'),
+                          ),
                           DropdownMenuItem(
                             value: 'm.tkngh.jp',
                             child: Text('m.tkngh.jp'),
