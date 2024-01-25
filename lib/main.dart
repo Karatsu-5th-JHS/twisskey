@@ -63,9 +63,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Twisskey',
       theme: ThemeData(
-          useMaterial3: true, colorScheme: lightColorScheme
-      ),
-      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
+          useMaterial3: true,
+          colorScheme: lightColorScheme,
+          primaryColor: lightColorScheme.primary),
+      darkTheme: ThemeData(
+          useMaterial3: true,
+          colorScheme: darkColorScheme,
+          primaryColor: darkColorScheme.primary),
+      themeMode: ThemeMode.system,
       home: const MyHomePage(title: 'Twisskey'),
       supportedLocales: const [Locale('ja','JP')],
       localizationsDelegates: const [
