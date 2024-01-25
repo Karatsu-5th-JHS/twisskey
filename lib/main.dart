@@ -155,10 +155,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 }else{
                   return Column(
                     children: [
+                      const Text("将来的に自由にインスタンスを選択できます"),
                       DropdownButton(
                         //4
                         items: const [
                           //5
+                          DropdownMenuItem(
+                            value: 'misskey.io',
+                            child: Text('misskey.io'),
+                          ),
                           DropdownMenuItem(
                             value: 'm.tkngh.jp',
                             child: Text('m.tkngh.jp'),
