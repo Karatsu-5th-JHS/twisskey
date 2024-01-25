@@ -18,6 +18,7 @@ import 'package:http/http.dart' as http;
 import 'package:twisskey/pages/about_system.dart';
 import 'package:twisskey/pages/note.dart';
 import 'package:twisskey/pages/notion.dart';
+import 'package:twisskey/pages/viewImage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -371,7 +372,6 @@ class _TimeLinePage extends State<TimelinePage> {
                                                             }
                                                             if (snapshottt
                                                                 .hasData) {
-                                                              print(snapshottt.data);
                                                               if(snapshottt.data["status"]=="yes") {
                                                                 return Row(children:[const Icon(
                                                                     Icons
@@ -509,13 +509,14 @@ class _TimeLinePage extends State<TimelinePage> {
     var image = sensitiveFlug["url"];
     var sf = sensitiveFlug["isSensitive"];
     if (kDebugMode) {
-      print("isSensitive:$sf");
+      print("isSensitive:"+sensitiveFlug["type"]);
     }
-    if(sf == true){
+    if(sf == true && !(sensitiveFlug["type"].contains("video"))){
       if (kDebugMode) {
         print("Blur skip");
       }
       return GestureDetector(child:Blur(
+        blur: 20,
         child: SizedBox(
           height: 300,
           width: 300,
@@ -525,15 +526,23 @@ class _TimeLinePage extends State<TimelinePage> {
                 height: 300,
               ),progressIndicatorBuilder: (context, url, downloadProgress) =>
               CircularProgressIndicator(value: downloadProgress.progress),),
+          ),
         ),
-      ));
-    }else{
-      return  CachedNetworkImage(imageUrl: image,imageBuilder: (context,imageProvider)=>
+        onTap: ()=>{Fluttertoast.showToast(msg: "センシティブ画像は詳細からのみプレビューできます")},
+      );
+    }else if(!(sensitiveFlug["type"].contains("video"))){
+      return GestureDetector(
+        child:CachedNetworkImage(imageUrl: image,imageBuilder: (context,imageProvider)=>
           Image(image: imageProvider,
             width: 300,
             height: 300,
-          ),progressIndicatorBuilder: (context, url, downloadProgress) =>
-          CircularProgressIndicator(value: downloadProgress.progress),);
+          ),
+          progressIndicatorBuilder: (context, url, downloadProgress) => CircularProgressIndicator(value: downloadProgress.progress),
+        ),
+        onTap: ()=>{viewImageOnDialog(context: context,uri: image)},
+      );
+    }else{
+      return TextButton(onPressed:(){playMovieOnDialog(context: context, uri: image);} ,child: const Icon(Icons.play_circle_outlined));
     }
   }
 
