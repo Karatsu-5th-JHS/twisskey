@@ -362,7 +362,7 @@ class _noteViewPage extends State<viewNote>{
     var image = sensitiveFlug["url"];
     var sf = sensitiveFlug["isSensitive"];
     sf = false;
-    if(sf == true){
+    if(sf == true &&!(sensitiveFlug["type"].contains("video"))){
       if (kDebugMode) {
         print("Blur skip");
       }
@@ -381,7 +381,7 @@ class _noteViewPage extends State<viewNote>{
       ),
         onTap: ()=>{Fluttertoast.showToast(msg: "センシティブ画像は詳細からのみプレビューできます")},
       );
-    }else{
+    }else if(!(sensitiveFlug["type"].contains("video"))){
       return GestureDetector(
         child:CachedNetworkImage(imageUrl: image,imageBuilder: (context,imageProvider)=>
             Image(image: imageProvider,
@@ -392,6 +392,8 @@ class _noteViewPage extends State<viewNote>{
         ),
         onTap: ()=>{viewImageOnDialog(context: context,uri: image)},
       );
+    }else{
+      return TextButton(onPressed:(){} ,child: const Icon(Icons.play_circle_outlined));
     }
   }
 }

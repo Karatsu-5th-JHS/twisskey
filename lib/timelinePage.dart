@@ -509,9 +509,9 @@ class _TimeLinePage extends State<TimelinePage> {
     var image = sensitiveFlug["url"];
     var sf = sensitiveFlug["isSensitive"];
     if (kDebugMode) {
-      print("isSensitive:$sf");
+      print("isSensitive:"+sensitiveFlug["type"]);
     }
-    if(sf == true){
+    if(sf == true && !(sensitiveFlug["type"].contains("video"))){
       if (kDebugMode) {
         print("Blur skip");
       }
@@ -530,7 +530,7 @@ class _TimeLinePage extends State<TimelinePage> {
         ),
         onTap: ()=>{Fluttertoast.showToast(msg: "センシティブ画像は詳細からのみプレビューできます")},
       );
-    }else{
+    }else if(!(sensitiveFlug["type"].contains("video"))){
       return GestureDetector(
         child:CachedNetworkImage(imageUrl: image,imageBuilder: (context,imageProvider)=>
           Image(image: imageProvider,
@@ -541,6 +541,8 @@ class _TimeLinePage extends State<TimelinePage> {
         ),
         onTap: ()=>{viewImageOnDialog(context: context,uri: image)},
       );
+    }else{
+      return TextButton(onPressed:(){playMovieOnDialog(context: context, uri: image);} ,child: const Icon(Icons.play_circle_outlined));
     }
   }
 
