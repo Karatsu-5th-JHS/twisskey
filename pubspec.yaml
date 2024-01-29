@@ -16,11 +16,18 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.1+6
+version: 1.0.1+12
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
 
+# Application icons
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "asset/twisskey.png"
+  adaptive_icon_background: "#ffffff"
+  remove_alpha_ios: true
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
@@ -32,7 +39,6 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -48,6 +54,15 @@ dependencies:
   mfm: ^1.0.2
   blur: ^3.1.0
   fluttertoast: ^8.2.4
+  package_info_plus: ^5.0.1
+  file_picker: ^6.1.1
+  flutter_hooks: ^0.20.4
+  image_picker: ^1.0.7
+  flutter_cache_manager: ^3.3.1
+  cached_network_image: ^3.3.1
+  flutter_launcher_icons: ^0.13.1
+  video_player: ^2.8.2
+  logger: ^2.0.2+1
 
 dev_dependencies:
   flutter_test:
@@ -103,3 +118,5 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
   assets:
     - asset/tkngh.png
+    - asset/twisskey.png
+    - asset/background.jpg

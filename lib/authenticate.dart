@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:twisskey/main.dart';
 
-class authenticate extends StatelessWidget {
-  const authenticate({Key? key, required this.session}) : super(key: key);
+class Authenticate extends StatelessWidget {
+  const Authenticate({Key? key, required this.session}) : super(key: key);
   final String session;
   @override
   Widget build(BuildContext context) {

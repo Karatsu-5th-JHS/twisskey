@@ -5,33 +5,74 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/authenticate.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 import 'package:twisskey/timelinePage.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'color_schemes.g.dart';
 
 //アイコンの初期化
 String iconImage = "";
 
 //メイン呼び出し
 void main() {
-  runApp(const MyApp());
+  timeago.setLocaleMessages("ja", timeago.JaMessages());
+  runApp(MyApp());
 }
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
+
+  late Map<String,String> emojiList = {};
+
+  void firstAddEmojis(){
+    Future(() async {
+      final host = {
+        "misskey.io",
+        "m.tkngh.jp",
+        "momo.dosuto.net",
+        "mi.taichan.site",
+        "misskey.backspace.fm",
+        "stg.miria.shiosyakeyakini.info",
+        "mkkey.net",
+        "fw3rd-bc.jp",
+        "koliosky.com",
+        "misskey.network",
+        "exekey.net",
+        "k.lapy.link"
+      };
+      for(var host in host){
+          final response = await http.get(
+          Uri(scheme: "https", host: host, pathSegments: ["api", "emojis"]));
+      emojiList.addAll(Map.fromEntries(
+      (jsonDecode(response.body)["emojis"] as List)
+          .map((e) => MapEntry(e["name"] as String, e["url"] as String))));
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString("emojis", jsonEncode(emojiList).toString());
+      };
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'TKNGH for Android',
+      title: 'Twisskey',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'TKNGH'),
-      supportedLocales: [Locale('ja','JP')],
+          useMaterial3: true,
+          colorScheme: lightColorScheme,
+          primaryColor: lightColorScheme.primary),
+      darkTheme: ThemeData(
+          useMaterial3: true,
+          colorScheme: darkColorScheme,
+          primaryColor: darkColorScheme.primary),
+      themeMode: ThemeMode.system,
+      home: const MyHomePage(title: 'Twisskey'),
+      supportedLocales: const [Locale('ja','JP')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -53,6 +94,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   StreamSubscription? _sub;
   String isSelectedItem = "m.tkngh.jp";
+  String TOKEN = "";
 
   @override
   void initState() {
@@ -78,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
             if(session == null){
               pushPage(const TimelinePage());
             }else{
-              pushPage(authenticate(session: session));
+              pushPage(Authenticate(session: session));
             }
             break;
         }
@@ -131,10 +173,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 }else{
                   return Column(
                     children: [
+                      const Text("将来的に自由にインスタンスを選択できます"),
                       DropdownButton(
                         //4
                         items: const [
                           //5
+                          DropdownMenuItem(
+                            value: 'misskey.io',
+                            child: Text('misskey.io'),
+                          ),
                           DropdownMenuItem(
                             value: 'm.tkngh.jp',
                             child: Text('m.tkngh.jp'),
@@ -147,6 +194,18 @@ class _MyHomePageState extends State<MyHomePage> {
                             value: 'exekey.net',
                             child: Text('exekey.net'),
                           ),
+                          DropdownMenuItem(
+                            value: 'love.xn--vusz0j.life',
+                            child: Text('love.幼女.life'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'misskey.network',
+                            child: Text('misskey.network'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'nekusuchan.net',
+                            child: Text('nekusuchan.net'),
+                          ),
                         ],
                         //6
                         onChanged: (String? value) {
@@ -158,6 +217,28 @@ class _MyHomePageState extends State<MyHomePage> {
                         value: isSelectedItem,
                       ),
                       loginButton(isSelectedItem),
+                      TextField(
+                        onChanged: (text)=>{
+                          TOKEN = text
+                        },
+                        decoration: const InputDecoration(
+                          hintText: "トークンを入力"
+                        ),
+                      ),
+                      ElevatedButton(onPressed: () {
+                        loginWithToken(isSelectedItem, TOKEN).then((check) {
+                          if (check != "true") {
+                            Fluttertoast.showToast(
+                                msg: "ログインできませんでした", fontSize: 18);
+                          } else {
+                            Navigator.pushReplacement(
+                                context, MaterialPageRoute(builder: (context) {
+                              return MyApp();
+                            }));
+                          }
+                        });
+                          }, child: const Text("トークンでログイン")
+                      ),
                       ElevatedButton(onPressed: (){logout();}, child: const Text("修復"))
                     ]
                   );
@@ -191,7 +272,7 @@ class _MyHomePageState extends State<MyHomePage> {
     prefs.setString("host", instance);
   }
   Future<String> getIconImage() async{
-    var token = getToken();
+    var token = sysAccount().getToken();
     final Uri uri = Uri.parse("https://m.tkngh.jp/api/i");
     Map<String, String> headers = {'content-type': 'application/json'};
     final response = await http.post(uri,headers: headers, body: json.encode({"i": token}));
@@ -199,6 +280,32 @@ class _MyHomePageState extends State<MyHomePage> {
     Map<String, dynamic> map = jsonDecode(res);
     String url = map["avatarUrl"];
     return url;
+  }
+
+  Future<String> loginWithToken(String isSelectedItem, String T) async {
+    _MyHomePageState().saveHost(isSelectedItem);
+    String host = isSelectedItem;
+    String TOKEN = T;
+    if(TOKEN=="null"){
+      return "false";
+    }
+    final Uri uri = Uri.parse("https://$host/api/i");
+    Map<String, String> headers = {'content-type': 'application/json'};
+    final response = await http.post(uri,headers: headers, body: json.encode({"i": TOKEN}));
+    final String res = response.body;
+    Map<String, dynamic> map = jsonDecode(res);
+    if(map["name"] != null){
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      var accountPos = (prefs.getInt('counter') ?? 0);
+      if(accountPos == 0) {
+        prefs.setInt("counter", 1);
+        prefs.setInt("selection", 1);
+        prefs.setString("1", TOKEN);
+      }
+      return "true";
+    }else{
+      return "false";
+    }
   }
 }
 
@@ -237,8 +344,8 @@ Future<String> loginCheck() async {
   if (kDebugMode) {
     print("request start");
   }
-  var token = await getToken();
-  var host = await getHost();
+  var token = await sysAccount().getToken();
+  var host = await sysAccount().getHost();
   if (kDebugMode) {
     print("token get");
   }
@@ -258,30 +365,16 @@ Future<String> loginCheck() async {
   }
 }
 
-Future<String> getToken() async {
-  SharedPreferences sp = await SharedPreferences.getInstance();
-  var token = sp.getString(sp.getInt("selection").toString()) ?? 'null';
-  if (kDebugMode) {
-    print(sp.getInt("selection"));
-  }
-  if (kDebugMode) {
-    print("token: $token");
-  }
-  return token;
-}
-
-Future<String> getHost() async {
-  SharedPreferences sp = await SharedPreferences.getInstance();
-  var token = sp.getString("host") ?? 'null';
-  if (kDebugMode) {
-    print("host: $token");
-  }
-  return token;
-}
-
 Future<Map<String,String>> getEmoji() async{
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  var res = await jsonDecode(prefs.getString("emojis").toString());
+  var json = prefs.getString("emojis").toString();
+  if (kDebugMode) {
+    print("data$json");
+  }
+  Map<String, String> res = Map.castFrom(jsonDecode(json));
+  if (kDebugMode) {
+    print(res);
+  }
   return res;
 }
 
@@ -318,7 +411,6 @@ logout() async {
       print("Counter is not found");
     }
   }
-  MyApp;
   //main();
   //exit(0);
 }

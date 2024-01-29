@@ -1,13 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mfm/mfm.dart';
+import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/main.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:http/http.dart' as http;
+import 'package:twisskey/pages/note.dart';
+import 'package:twisskey/timelinePage.dart';
 
 class notion extends StatefulWidget {
   const notion({Key? key}) : super(key: key);
@@ -20,7 +23,11 @@ class _notion extends State<notion> {
   final focusNode = FocusNode();
   late Widget icons;
   late ImageProvider notionImage;
+
   late Future<dynamic> _notificationFuture;
+
+
+
   @override
   void initState(){
     super.initState();
@@ -28,13 +35,14 @@ class _notion extends State<notion> {
     _notificationFuture = _notificationLoading();
   }
 
+
   Future loadEmoji() async{
     emojiList = await getEmoji();
   }
 
   Future<dynamic> _notificationLoading() async {
-    var token = await getToken();
-    var host = await getHost();
+    var token = await sysAccount().getToken();
+    var host = await sysAccount().getHost();
     final Uri uri = Uri.parse("https://$host/api/i/notifications");
     Map<String, String> headers = {'content-type': 'application/json'};
     final response = await http.post(
@@ -56,6 +64,19 @@ class _notion extends State<notion> {
       appBar: AppBar(
         title: const Text("通知")
       ),
+      bottomNavigationBar: BottomAppBar(child: Center(child: Padding( padding: const EdgeInsets.symmetric(horizontal: 1.0),
+          child:Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(onPressed: (){Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>const TimelinePage()));}, icon: const Icon(Icons.home)),
+              IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushSearch",fontSize: 18);}, icon: const Icon(Icons.search)),
+              IconButton(onPressed: (){
+                Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>const notion()));
+              }, icon: const Icon(Icons.notifications)),
+              IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushMes",fontSize: 18);}, icon: const Icon(Icons.mail)),
+              IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushMenu",fontSize: 18);}, icon: const Icon(Icons.menu))
+            ],
+          ))),),
       body: RefreshIndicator(
         onRefresh: () async {
           setState((){
@@ -63,7 +84,7 @@ class _notion extends State<notion> {
           });
         },
       child: FutureBuilder<dynamic> (
-          future: _notificationLoading(),
+          future: _notificationFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
@@ -77,21 +98,62 @@ class _notion extends State<notion> {
                       }
                       //タイプ判別
                       var matsubi = "";
+                      var user = "";
+                      var noteText = "";
+                      if(feed['type']=="app") {
+                        matsubi = feed["body"];
+                        user = feed["header"];
+                      }
+
+                      if(feed["user"]==null && user == ""){
+                        user = "NAME FETCH IS FAILED";
+                      }else if(feed["user"]!=null && user==""){
+                        if(feed["user"]["name"] == null){
+                          user = feed["user"]["username"];
+                        }else {
+                          user = feed["user"]["name"];
+                        }
+                      }
+                      var id = "0x0000";
                       if(feed['type']=="reaction") {
-                        matsubi = "このノートが"+feed["user"]["name"]+"にリアクションされました";
-                        icons = Icon(Icons.add);
+                        if(feed['note']["text"] != null){
+                          noteText = feed['note']["text"];
+                        }else{
+                          noteText = "画像のみの投稿です。";
+                        }
+                        matsubi = noteText;
+                        icons = const Icon(Icons.add);
+                        id = feed["note"]["id"];
                       }else if(feed['type']=="renote"){
-                        matsubi = "このノートが"+feed["user"]["name"]+"にリノートされました";
-                        icons = Icon(Icons.repeat);
+                        if(feed['note']["renote"]["text"] != null){
+                          noteText = feed['note']["renote"]["text"];
+                        }else{
+                          noteText = "画像のみの投稿です。";
+                        }
+                        matsubi = noteText;
+                        icons = const Icon(Icons.repeat);
+                        id = feed["note"]["id"];
                       }else if(feed['type']=="note") {
-                        matsubi = feed["user"]["name"]+"の新しいノート";
-                        icons = Icon(Icons.comment_outlined);
+                        matsubi = "$userの新しいツイート通知";
+                        icons = const Icon(Icons.comment_outlined);
+                        id = feed["note"]["id"];
+                      }else if(feed["type"]=="followRequestAccepted"){
+                        matsubi = "フォローが承認されました";
+                        icons = const Icon(Icons.check_circle_outlined);
+                      }else{
+                        matsubi = "通知を認識できませんでした";
+                        icons = const Icon(Icons.question_mark);
                       }
                       final text = matsubi;
                       final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
+                      if (kDebugMode) {
+                        print("$user:$text");
+                      }
                       return Column(children: [
                         InkWell(
-                          onTap: () => print('Tapped!'),
+                          onTap: () => {
+                            Navigator.push(context,MaterialPageRoute(builder: (context)=>viewNote(noteId: id)))
+                          },
                           child: Container(
                               padding: const EdgeInsets.only(left: 8.0,bottom: 8.0,right:8.0),
                               child: Column(
@@ -100,50 +162,48 @@ class _notion extends State<notion> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         CircleAvatar(
-                                          child: icons,
                                           radius: 24,
+                                          child: icons,
                                         ),
                                         const SizedBox(width: 8.0),
                                         Flexible(
-                                          child: Container(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                                children:[
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                    MainAxisAlignment. spaceAround,
-                                                    children: [
-                                                      Flexible(
-                                                          child: Mfm(
-                                                              mfmText: "${"**" + feed["user"]["name"]}**",
-                                                              emojiBuilder: (context, emoji, style) {
-                                                                final emojiData = emojiList[emoji];
-                                                                if (emojiData == null) {
-                                                                  return Text.rich(TextSpan(text: emoji, style: style));
-                                                                } else {
-                                                                  // show emojis if emoji data found
-                                                                  return Image.network(
-                                                                    emojiData,
-                                                                    height: (style?.fontSize ?? 1) * 2,
-                                                                  );
-                                                                }
-                                                              })
-                                                      ),
-
-                                                      Text(
-                                                        timeago.format(createdAt, locale: "ja"),
-                                                        style: const TextStyle(fontSize: 12.0),
-                                                        overflow: TextOverflow.clip,
-                                                      ),
-                                                    ],
+                                          child: Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children:[
+                                              Row(
+                                                mainAxisAlignment:
+                                                MainAxisAlignment. spaceAround,
+                                                children: [
+                                                  Flexible(
+                                                      child: Mfm(
+                                                          mfmText: "**$user**",
+                                                          emojiBuilder: (context, emoji, style) {
+                                                            final emojiData = emojiList[emoji];
+                                                            if (emojiData == null) {
+                                                              return Text.rich(TextSpan(text: emoji, style: style));
+                                                            } else {
+                                                              // show emojis if emoji data found
+                                                              return Image.network(
+                                                                emojiData,
+                                                                height: (style?.fontSize ?? 1) * 2,
+                                                              );
+                                                            }
+                                                          })
                                                   ),
-                                                  const SizedBox(height: 10.0),
-                                                  /*Text(text,
-                                                style: const TextStyle(fontSize: 15.0)),*/
-                                                  Text(text),
+
+                                                  Text(
+                                                    timeago.format(createdAt, locale: "ja"),
+                                                    style: const TextStyle(fontSize: 12.0),
+                                                    overflow: TextOverflow.clip,
+                                                  ),
                                                 ],
-                                              )
+                                              ),
+                                              const SizedBox(height: 10.0),
+                                              /*Text(text,
+                                            style: const TextStyle(fontSize: 15.0)),*/
+                                              Text(matsubi,overflow: TextOverflow.ellipsis,),
+                                            ],
                                           ),
                                         ),
                                       ],
