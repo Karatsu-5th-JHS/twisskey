@@ -16,75 +16,84 @@ import 'package:http/http.dart' as http;
 import 'package:twisskey/timelinePage.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'color_schemes.g.dart';
+import 'package:twisskey/api/language/helper.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 //アイコンの初期化
 String iconImage = "";
 
 //メイン呼び出し
-void main() {
+void main() async {
   //Timeagoの言語設定をする
   timeago.setLocaleMessages("ja", timeago.JaMessages());
+  WidgetsFlutterBinding.ensureInitialized();
+  await UserPreferences.init();
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   MyApp({Key? key}) : super(key: key);
+  @override
+  _MyAppState createState() => _MyAppState();
+}
 
-  late Map<String, String> emojiList = {};
+class _MyAppState extends State<MyApp> {
+  Locale? _locale;
 
-  void firstAddEmojis() {
-    Future(() async {
-      final host = {
-        "misskey.io",
-        "m.tkngh.jp",
-        "momo.dosuto.net",
-        "mi.taichan.site",
-        "misskey.backspace.fm",
-        "stg.miria.shiosyakeyakini.info",
-        "mkkey.net",
-        "fw3rd-bc.jp",
-        "koliosky.com",
-        "misskey.network",
-        "exekey.net",
-        "k.lapy.link"
-      };
-      for (var host in host) {
-        final response = await http.get(
-            Uri(scheme: "https", host: host, pathSegments: ["api", "emojis"]));
-        emojiList.addAll(Map.fromEntries((jsonDecode(response.body)["emojis"]
-                as List)
-            .map((e) => MapEntry(e["name"] as String, e["url"] as String))));
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString("emojis", jsonEncode(emojiList).toString());
-      }
-      ;
+  @override
+  void initState() {
+    super.initState();
+    _fetchLocale().then((locale) {
+      setState(() {
+        _locale = locale;
+      });
+    });
+  }
+
+  Future<Locale> _fetchLocale() async {
+    var languageCode = UserPreferences.getLanguage();
+    return Locale(languageCode ?? 'ja'); // デフォルトを日本語に設定します
+  }
+
+  void _changeLanguage(String languageCode) async {
+    await UserPreferences.setLanguage(languageCode); // 言語設定を保存します
+    var locale = await _fetchLocale();
+    setState(() {
+      _locale = locale;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Twisskey',
-      theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: lightColorScheme,
-          primaryColor: lightColorScheme.primary,
-          fontFamily: 'M PLUS 1'),
-      darkTheme: ThemeData(
-          useMaterial3: true,
-          colorScheme: darkColorScheme,
-          primaryColor: darkColorScheme.primary,
-          fontFamily: 'M PLUS 1'),
-      themeMode: ThemeMode.system,
-      home: const MyHomePage(title: 'Twisskey'),
-      supportedLocales: const [Locale('ja', 'JP')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        DefaultCupertinoLocalizations.delegate
-      ],
-    );
+    if (_locale == null) {
+      // Localeがまだ読み込まれていない場合は、ローディングスピナーを表示します
+      return CircularProgressIndicator();
+    } else {
+      return MaterialApp(
+        title: 'Twisskey',
+        locale: _locale,
+        localizationsDelegates: [
+          L10n.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          DefaultCupertinoLocalizations.delegate
+        ],
+        theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: lightColorScheme,
+            primaryColor: lightColorScheme.primary,
+            fontFamily: 'M PLUS 1'),
+        darkTheme: ThemeData(
+            useMaterial3: true,
+            colorScheme: darkColorScheme,
+            primaryColor: darkColorScheme.primary,
+            fontFamily: 'M PLUS 1'),
+        themeMode: ThemeMode.system,
+        home: const MyHomePage(title: 'Twisskey'),
+        supportedLocales: const [Locale('ja', 'JP')],
+      );
+    }
   }
 }
 
@@ -176,7 +185,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       );
                     } else {
                       return Column(children: [
-                        const Text("将来的に自由にインスタンスを選択できます"),
+                        //arb: select_instance
+                        Text(L10n.of(context)!.select_instance),
                         DropdownButton(
                           //4
                           items: const [
@@ -223,7 +233,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         TextField(
                           onChanged: (text) => {TOKEN = text},
                           decoration:
-                              const InputDecoration(hintText: "トークンを入力"),
+                              //arb: input_token
+                              InputDecoration(
+                                  hintText: L10n.of(context)!.input_token),
                         ),
                         ElevatedButton(
                             onPressed: () {
@@ -231,7 +243,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                   .then((check) {
                                 if (check != "true") {
                                   Fluttertoast.showToast(
-                                      msg: "ログインできませんでした", fontSize: 18);
+                                      //arb: failed_login
+                                      msg: L10n.of(context)!.failed_login,
+                                      fontSize: 18);
                                 } else {
                                   Navigator.pushReplacement(context,
                                       MaterialPageRoute(builder: (context) {
@@ -240,12 +254,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                 }
                               });
                             },
-                            child: const Text("トークンでログイン")),
+                            //arb: login_with_token
+                            child: Text(L10n.of(context)!.login_with_token)),
                         ElevatedButton(
                             onPressed: () {
                               logout();
                             },
-                            child: const Text("修復"))
+                            //arb: repair
+                            child: Text(L10n.of(context)!.repair))
                       ]);
                     }
                   } else {
@@ -271,7 +287,8 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {
           auth(instance);
         },
-        child: const Text("ログイン"));
+        //login
+        child: Text(L10n.of(context)!.login));
   }
 
   saveHost(instance) async {
@@ -345,8 +362,9 @@ Future<String> loginProcess(sessionKey) async {
       prefs.setInt("selection", 1);
       prefs.setString("1", map["token"]);
     }
-    return "ログインしました。アプリを再起動してください。";
+    return "";
   } else {
+    //arb: failed_login
     return "ログインに失敗しました";
   }
 }
