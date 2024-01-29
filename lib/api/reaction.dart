@@ -41,10 +41,10 @@ class DoReaction{
             Fluttertoast.showToast(msg: "同一のリアクションがあります")
           }
       }});
-      if(flug == false){action(noteId, emojiCode);Fluttertoast.showToast(msg: "Reactioned");}
+      if(flug == false){action(noteId, emojiCode);Fluttertoast.showToast(msg: "Added the reaction");}
     }else{
       action(noteId, emojiCode);
-      Fluttertoast.showToast(msg: "Reactioned");
+      Fluttertoast.showToast(msg: "Added the reaction");
     }
     return flug;
   }

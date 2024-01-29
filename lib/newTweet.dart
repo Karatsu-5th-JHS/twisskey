@@ -109,7 +109,9 @@ class _newTweet extends State<newTweet>{
                 children: [
                   IconButton(onPressed: ()=>{
                     selectImage().then((value) => (){
-                      print("select?");
+                      if (kDebugMode) {
+                        print("select?");
+                      }
                     })
                   }, icon: const Icon(Icons.image),color: Colors.blue,)
                 ],
@@ -126,14 +128,22 @@ class _newTweet extends State<newTweet>{
     final Uri uri = Uri.parse("https://$host/api/notes/create");
     var body;
     Map<String, String> headers = {'Content-Type': 'application/json',"charset":'UTF-8'};
-    print(fileIds.length);
+    if (kDebugMode) {
+      print(fileIds.length);
+    }
     if(fileIds.length==0) {
-      print("文のみ");
+      if (kDebugMode) {
+        print("文のみ");
+      }
       body = {"text": tweet, "i": token};
     }else{
       if(tweet != "" && tweet != null) {
-        print(tweet);
-        print("tweet 含む");
+        if (kDebugMode) {
+          print(tweet);
+        }
+        if (kDebugMode) {
+          print("tweet 含む");
+        }
         body = {"text": tweet, "i": token, "fileIds": fileIds};
       }else{
         body = {"i": token, "fileIds": fileIds};
@@ -142,10 +152,14 @@ class _newTweet extends State<newTweet>{
     final response = await http.post(uri,headers: headers, body: jsonEncode(body));
     final res = response.body;
     Map<String, dynamic> map = jsonDecode(res);
-    print(map["createdNote"]);
+    if (kDebugMode) {
+      print(map["createdNote"]);
+    }
     if(map["createdNote"]==null){
       Fluttertoast.showToast(msg: "ツイートの作成に失敗しました",fontSize: 18);
-      print(map);
+      if (kDebugMode) {
+        print(map);
+      }
     }else{
       Fluttertoast.showToast(msg: "ツイートしました",fontSize: 18);
     }

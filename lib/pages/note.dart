@@ -381,7 +381,7 @@ class _noteViewPage extends State<viewNote>{
               CircularProgressIndicator(value: downloadProgress.progress),),
         ),
       ),
-        onTap: ()=>{Fluttertoast.showToast(msg: "センシティブ画像は詳細からのみプレビューできます")},
+        onTap: ()=>{Fluttertoast.showToast(msg: "センシティブ指定されたファイルを見るにはツイートをタップしてください")},
       );
     }else if(!(sensitiveFlug["type"].contains("video"))){
       return GestureDetector(
@@ -407,7 +407,7 @@ class _noteViewPage extends State<viewNote>{
         future: Note().fetchReply(feed["id"]),
         builder: (context,snap){
           if(snap.connectionState != ConnectionState.done){
-            return const Text("リプライの取得に失敗しました(接続に失敗しました)");
+            return const Text("リプライの取得中です");
           }
           if(!snap.hasData){
             return const Text("リプライの取得に失敗しました(データがありません)");
@@ -510,7 +510,7 @@ class _noteViewPage extends State<viewNote>{
         future: Note().fetchReplies(noteId),
         builder: (context,snap){
           if(snap.connectionState != ConnectionState.done){
-            return const Text("リプライの取得に失敗しました(接続に失敗しました)");
+            return const Text("リプライの取得中です");
           }
           if(!snap.hasData){
             return const Text("リプライの取得に失敗しました(データがありません)");

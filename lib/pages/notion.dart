@@ -134,7 +134,7 @@ class _notion extends State<notion> {
                         icons = const Icon(Icons.repeat);
                         id = feed["note"]["id"];
                       }else if(feed['type']=="note") {
-                        matsubi = "$userの新しいノート";
+                        matsubi = "$userの新しいツイート通知";
                         icons = const Icon(Icons.comment_outlined);
                         id = feed["note"]["id"];
                       }else if(feed["type"]=="followRequestAccepted"){

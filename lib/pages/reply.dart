@@ -115,7 +115,7 @@ class _Reply extends State<Reply>{
                     minLines: 10,
                     maxLines: 10,
                     decoration: const InputDecoration(
-                      hintText: "いまどうしてる？",
+                      hintText: "返信をツイート",
                     ),
                   ),
                   if(imageState != "")
@@ -145,14 +145,21 @@ class _Reply extends State<Reply>{
     final Uri uri = Uri.parse("https://$host/api/notes/create");
     var body;
     Map<String, String> headers = {'Content-Type': 'application/json',"charset":'UTF-8'};
-    print(fileIds.length);
+    if (kDebugMode) {
+      print(fileIds.length);
+    }
     if(fileIds.length==0) {
-      print("文のみ");
+      if (kDebugMode) {
+        print("文のみ");
+      }
       body = {"text": tweet, "i": token,"replyId":widget.id};
     }else{
       if(tweet != "" && tweet != null) {
-        print(tweet);
-        print("tweet 含む");
+        if (kDebugMode) {
+          print(tweet);
+          print("tweet 含む");
+        }
+
         body = {"text": tweet, "i": token, "fileIds": fileIds};
       }else{
         body = {"i": token, "fileIds": fileIds,"replyId":widget.id};
@@ -276,7 +283,7 @@ class _Reply extends State<Reply>{
               ),errorWidget: (context, url, dynamic error) => const Icon(Icons.error)),
         ),
       ),
-        onTap: ()=>{Fluttertoast.showToast(msg: "センシティブ画像は詳細からのみプレビューできます")},
+        onTap: ()=>{Fluttertoast.showToast(msg: "センシティブ指定されたファイルを見るにはツイートをタップしてください")},
       );
     }else if(!(sensitiveFlug["type"].contains("video"))){
       return GestureDetector(

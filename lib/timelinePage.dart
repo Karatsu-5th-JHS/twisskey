@@ -206,7 +206,7 @@ class _TimeLinePage extends State<TimelinePage> {
                             }
                             if(feed["text"] == null){
                               if((!(feed["renoteId"]?.isEmpty ?? true)) && (feed["fileids"]?.isEmpty ?? true)) {
-                                Renote = "$tuさんがRenoteしました";
+                                Renote = "$tuさんがリツイートしました";
                                 feed = feed["renote"];
                                 if(feed["text"] == null){
                                   feed["text"] = null;
@@ -534,7 +534,7 @@ class _TimeLinePage extends State<TimelinePage> {
               ),errorWidget: (context, url, dynamic error) => const Icon(Icons.error)),
           ),
         ),
-        onTap: ()=>{Fluttertoast.showToast(msg: "センシティブ画像は詳細からのみプレビューできます")},
+        onTap: ()=>{Fluttertoast.showToast(msg: "センシティブ指定されたファイルを見るにはツイートをタップしてください")},
       );
     }else if(!(sensitiveFlug["type"].contains("video"))){
       return GestureDetector(
