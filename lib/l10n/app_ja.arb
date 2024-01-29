@@ -1,0 +1,8 @@
+{
+  "failed_login": "ログインできませんでした",
+  "input_token": "トークンを入力",
+  "login": "ログイン",
+  "login_with_token": "トークンでログイン",
+  "repair": "修復",
+  "select_instance": "インスタンスを選択"
+}
