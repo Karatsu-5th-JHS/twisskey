@@ -63,6 +63,7 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   video_player: ^2.8.2
   logger: ^2.0.2+1
+  connectivity_plus: ^2.3.8
 
 dev_dependencies:
   flutter_test:
@@ -120,3 +121,25 @@ flutter:
     - asset/tkngh.png
     - asset/twisskey.png
     - asset/background.jpg
+  
+  fonts:
+    - family: "M PLUS 1"
+      fonts:
+        - asset: asset/font/MPLUS1-Thin.ttf
+          weight: 100
+        - asset: asset/font/MPLUS1-ExtraLight.ttf
+          weight: 200
+        - asset: asset/font/MPLUS1-Light.ttf
+          weight: 300
+        - asset: asset/font/MPLUS1-Regular.ttf
+          weight: 400
+        - asset: asset/font/MPLUS1-Medium.ttf
+          weight: 500
+        - asset: asset/font/MPLUS1-SemiBold.ttf
+          weight: 600
+        - asset: asset/font/MPLUS1-Bold.ttf
+          weight: 700
+        - asset: asset/font/MPLUS1-ExtraBold.ttf
+          weight: 800
+        - asset: asset/font/MPLUS1-Black.ttf
+          weight: 900
