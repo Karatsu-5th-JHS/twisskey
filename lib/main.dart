@@ -5,10 +5,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/authenticate.dart';
+import 'package:twisskey/pages/top/sel_instance.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
@@ -28,11 +28,11 @@ void main() async {
   timeago.setLocaleMessages("ja", timeago.JaMessages());
   WidgetsFlutterBinding.ensureInitialized();
   await UserPreferences.init();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -55,13 +55,13 @@ class _MyAppState extends State<MyApp> {
     return Locale(languageCode ?? 'ja'); // デフォルトを日本語に設定します
   }
 
-  void _changeLanguage(String languageCode) async {
+  /*void _changeLanguage(String languageCode) async {
     await UserPreferences.setLanguage(languageCode); // 言語設定を保存します
     var locale = await _fetchLocale();
     setState(() {
       _locale = locale;
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -107,8 +107,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   StreamSubscription? _sub;
-  String isSelectedItem = "m.tkngh.jp";
-  String TOKEN = "";
 
   @override
   void initState() {
@@ -156,118 +154,45 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            title: const Row(
-          children: [
-            Image(image: AssetImage('asset/tkngh.png'), width: 20, height: 20),
-            Text("TKNGH")
-          ],
-        )),
-        body: Center(
-            child: FutureBuilder<String?>(
-                future: loginCheck(),
-                builder: (context, ss) {
-                  if (ss.hasData) {
-                    String result = ss.data!;
-                    if (result != "false") {
-                      //ログインされていれば、タイムラインページに推移を行います。
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const TimelinePage()));
-                      });
-                      return Column(
-                        children: [
-                          Image.network(iconImage),
-                          Text("$resultさんようこそ")
-                        ],
-                      );
-                    } else {
-                      return Column(children: [
-                        //arb: select_instance
-                        Text(L10n.of(context)!.select_instance),
-                        DropdownButton(
-                          //4
-                          items: const [
-                            //5
-                            DropdownMenuItem(
-                              value: 'misskey.io',
-                              child: Text('misskey.io'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'm.tkngh.jp',
-                              child: Text('m.tkngh.jp'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'koliosky.com',
-                              child: Text('koliosky.com'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'exekey.net',
-                              child: Text('exekey.net'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'love.xn--vusz0j.life',
-                              child: Text('love.幼女.life'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'misskey.network',
-                              child: Text('misskey.network'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'nekusuchan.net',
-                              child: Text('nekusuchan.net'),
-                            ),
-                          ],
-                          //6
-                          onChanged: (String? value) {
-                            setState(() {
-                              isSelectedItem = value ?? "m.tkngh.jp";
-                            });
-                          },
-                          //7
-                          value: isSelectedItem,
-                        ),
-                        loginButton(isSelectedItem),
-                        TextField(
-                          onChanged: (text) => {TOKEN = text},
-                          decoration:
-                              //arb: input_token
-                              InputDecoration(
-                                  hintText: L10n.of(context)!.input_token),
-                        ),
-                        ElevatedButton(
-                            onPressed: () {
-                              loginWithToken(isSelectedItem, TOKEN)
-                                  .then((check) {
-                                if (check != "true") {
-                                  Fluttertoast.showToast(
-                                      //arb: failed_login
-                                      msg: L10n.of(context)!.failed_login,
-                                      fontSize: 18);
-                                } else {
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(builder: (context) {
-                                    return MyApp();
-                                  }));
-                                }
-                              });
-                            },
-                            //arb: login_with_token
-                            child: Text(L10n.of(context)!.login_with_token)),
-                        ElevatedButton(
-                            onPressed: () {
-                              logout();
-                            },
-                            //arb: repair
-                            child: Text(L10n.of(context)!.repair))
-                      ]);
-                    }
-                  } else {
-                    return loginButton(isSelectedItem);
-                  }
-                })));
+        body: Container(
+      alignment: Alignment.center,
+      child: FutureBuilder(
+        future: loginCheck(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              if (snapshot.data != "false") {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const TimelinePage()));
+                });
+                return Text(L10n.of(context)!.login);
+              } else {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) {
+                    return const LoginScreen();
+                  }));
+                });
+                return Text(L10n.of(context)!.login);
+              }
+            } else {
+              return Container(
+                alignment: Alignment.center,
+                child: CircularProgressIndicator(),
+              );
+            }
+          } else {
+            return Container(
+              alignment: Alignment.center,
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
+    ));
   }
 
   Widget hyperlinkButton(String url) {
