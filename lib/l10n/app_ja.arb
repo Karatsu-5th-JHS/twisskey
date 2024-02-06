@@ -1,4 +1,5 @@
 {
+  "@@locale": "ja",
   "failed_login": "ログインできませんでした",
   "input_token": "トークンを入力",
   "login": "ログイン",
