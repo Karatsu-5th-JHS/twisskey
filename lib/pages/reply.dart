@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:blur/blur.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
@@ -57,6 +58,8 @@ class _Reply extends State<Reply> {
 
   @override
   Widget build(BuildContext context) {
+    String reply_s = L10n.of(context)!.msg_successed_reply;
+    String reply_f = L10n.of(context)!.msg_failed_reply;
     final ImagePicker picker = ImagePicker();
     Future<void> selectImage() async {
       final XFile? selectedImage =
@@ -91,11 +94,11 @@ class _Reply extends State<Reply> {
     var sizeHeight = MediaQuery.of(context).size.height;
     return Scaffold(
         appBar: AppBar(
-          title: const Text("リプライ"),
+          title: Text(L10n.of(context)!.reply),
           actions: [
             OutlinedButton(
               onPressed: () => {
-                doTweet(t_reply.text, fileIds),
+                doTweet(t_reply.text, fileIds, reply_s, reply_f),
                 Navigator.pop(context),
               },
               style: OutlinedButton.styleFrom(
@@ -103,7 +106,7 @@ class _Reply extends State<Reply> {
                   foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
                   side: const BorderSide(
                       width: 1, color: Color.fromRGBO(150, 191, 235, 1))),
-              child: const Text("リプライ"),
+              child: Text(L10n.of(context)!.reply),
             )
           ],
         ),
@@ -118,8 +121,8 @@ class _Reply extends State<Reply> {
                     autofocus: true,
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
-                    decoration: const InputDecoration(
-                      hintText: "返信をツイート",
+                    decoration: InputDecoration(
+                      hintText: L10n.of(context)!.guide_label_reply,
                     ),
                   ),
                   if (imageState != "") Image.network(imageState),
@@ -142,7 +145,7 @@ class _Reply extends State<Reply> {
                 ]))));
   }
 
-  Future doTweet(String? tweet, List<String> fileIds) async {
+  Future doTweet(String? tweet, List<String> fileIds, rs, rf) async {
     var token = await sysAccount().getToken();
     var host = await sysAccount().getHost();
     final Uri uri = Uri.parse("https://$host/api/notes/create");
@@ -177,10 +180,10 @@ class _Reply extends State<Reply> {
     Map<String, dynamic> map = jsonDecode(res);
     print(map["createdNote"]);
     if (map["createdNote"] == null) {
-      Fluttertoast.showToast(msg: "リプライの作成に失敗しました", fontSize: 18);
+      Fluttertoast.showToast(msg: rs, fontSize: 18);
       print(map);
     } else {
-      Fluttertoast.showToast(msg: "リプライしました", fontSize: 18);
+      Fluttertoast.showToast(msg: rf, fontSize: 18);
     }
   }
 
@@ -298,8 +301,10 @@ class _Reply extends State<Reply> {
                     const Icon(Icons.error)),
           ),
         ),
-        onTap: () =>
-            {Fluttertoast.showToast(msg: "センシティブ指定されたファイルを見るにはツイートをタップしてください")},
+        onTap: () => {
+          Fluttertoast.showToast(
+              msg: L10n.of(context)!.msg_sensitive_open_error)
+        },
       );
     } else if (!(sensitiveFlug["type"].contains("video"))) {
       return GestureDetector(
@@ -430,8 +435,8 @@ class _Reply extends State<Reply> {
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
-                                            const Text(
-                                              "返信先",
+                                            Text(
+                                              L10n.of(context)!.reply_to,
                                               style: TextStyle(fontSize: 12.0),
                                               overflow: TextOverflow.clip,
                                             ),

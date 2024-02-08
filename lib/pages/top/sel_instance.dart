@@ -72,9 +72,10 @@ class _LoginScreen extends State<LoginScreen> {
                 padding: const EdgeInsets.all(8),
                 child: TextField(
                   controller: t_instance,
-                  decoration: const InputDecoration(
-                      hintText: "インスタンスのホストを入力",
-                      label: Text("サーバーホスト"),
+                  keyboardType: TextInputType.url,
+                  decoration: InputDecoration(
+                      hintText: L10n.of(context)!.guide_input_instanse_url,
+                      label: Text(L10n.of(context)!.guide_label_server_host),
                       prefixText: "https://",
                       suffixText: "/",
                       prefixIcon: Icon(Icons.dns_outlined)),
@@ -83,10 +84,10 @@ class _LoginScreen extends State<LoginScreen> {
                 padding: const EdgeInsets.all(8),
                 child: TextField(
                   controller: t_token,
-                  decoration: const InputDecoration(
-                      hintText: "トークンを入力してログインする",
-                      label: Text("トークン"),
-                      prefixIcon: Icon(Icons.key_outlined)),
+                  decoration: InputDecoration(
+                      hintText: L10n.of(context)!.input_token,
+                      label: Text(L10n.of(context)!.token),
+                      prefixIcon: const Icon(Icons.key_outlined)),
                 )),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -98,7 +99,7 @@ class _LoginScreen extends State<LoginScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   child: ElevatedButton(
-                    child: const Text("Login with Token"),
+                    child: Text(L10n.of(context)!.login_with_token),
                     onPressed: () =>
                         loginWithToken(t_instance.text, t_token.text, context),
                   ),
@@ -150,7 +151,7 @@ Future<String> loginWithToken(String isSelectedItem, String T, context) async {
       prefs.setInt("selection", 1);
       prefs.setString("1", TOKEN);
     }
-    Fluttertoast.showToast(msg: "ログインしました");
+    Fluttertoast.showToast(msg: L10n.of(context)!.msg_login);
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const TimelinePage()));
     return "true";

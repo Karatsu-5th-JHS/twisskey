@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:twisskey/pages/config/language.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Configuration extends StatefulWidget {
   const Configuration({Key? key}) : super(key: key);
@@ -13,13 +15,16 @@ class _pageConfiguration extends State<Configuration> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("設定"),
+          title: Text(L10n.of(context)!.configuration),
         ),
         body: Column(
           children: [
             TextButton(
                 onPressed: () {
-                  Fluttertoast.showToast(msg: "言語設定を開く");
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Language()));
                 },
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -27,18 +32,18 @@ class _pageConfiguration extends State<Configuration> {
                     Container(
                         padding: const EdgeInsets.only(right: 10),
                         child: const Icon(Icons.translate_outlined)),
-                    const Column(
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "言語設定",
-                          style: TextStyle(
+                          L10n.of(context)!.config_language,
+                          style: const TextStyle(
                               fontWeight: FontWeight.w900, color: Colors.black),
                         ),
                         Text(
-                          "Twisskeyで利用する言語の設定をします",
-                          style: TextStyle(
+                          L10n.of(context)!.about_config_language,
+                          style: const TextStyle(
                               color: Color.fromRGBO(100, 100, 100, 1)),
                         )
                       ],
@@ -47,7 +52,8 @@ class _pageConfiguration extends State<Configuration> {
                 )),
             TextButton(
                 onPressed: () {
-                  Fluttertoast.showToast(msg: "公共");
+                  Fluttertoast.showToast(
+                      msg: L10n.of(context)!.config_public_health);
                 },
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -55,20 +61,21 @@ class _pageConfiguration extends State<Configuration> {
                     Container(
                         padding: const EdgeInsets.only(right: 10),
                         child: const Icon(Icons.train)),
-                    const Column(
+                    Flexible(
+                        child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "公共設定",
-                          style: TextStyle(
+                          L10n.of(context)!.config_public_health,
+                          style: const TextStyle(
                               fontWeight: FontWeight.w900, color: Colors.black),
                         ),
-                        Text("公共に関する設定をします",
-                            style: TextStyle(
+                        Text(L10n.of(context)!.about_config_public_health,
+                            style: const TextStyle(
                                 color: Color.fromRGBO(100, 100, 100, 1)))
                       ],
-                    )
+                    ))
                   ],
                 )),
             TextButton(
@@ -81,18 +88,18 @@ class _pageConfiguration extends State<Configuration> {
                     Container(
                         padding: const EdgeInsets.only(right: 10),
                         child: const Icon(Icons.privacy_tip_outlined)),
-                    const Flexible(
+                    Flexible(
                         child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "プライバシーと安全",
-                          style: TextStyle(
+                          L10n.of(context)!.config_privacy_and_safety,
+                          style: const TextStyle(
                               fontWeight: FontWeight.w900, color: Colors.black),
                         ),
-                        Text("アカウントに関するコミュニティでの安全性を設定します。",
-                            style: TextStyle(
+                        Text(L10n.of(context)!.about_config_privacy_and_safety,
+                            style: const TextStyle(
                                 color: Color.fromRGBO(100, 100, 100, 1)))
                       ],
                     ))
