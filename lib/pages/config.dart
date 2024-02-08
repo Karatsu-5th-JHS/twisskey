@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:twisskey/pages/config/language.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Configuration extends StatefulWidget {
   const Configuration({Key? key}) : super(key: key);
@@ -105,6 +106,35 @@ class _pageConfiguration extends State<Configuration> {
                     ))
                   ],
                 )),
+            TextButton(
+                onPressed: () {
+                  launchUrl(Uri.parse(
+                      "https://twisskey.tkngh.jp/other/privacy.html"));
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: const Icon(Icons.info_outline)),
+                    const Flexible(
+                        child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Privacy Policy",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w900, color: Colors.black),
+                        ),
+                        Text(
+                            "Open the Twisskey Privacy Policy page in your in-app browser.",
+                            style: TextStyle(
+                                color: Color.fromRGBO(100, 100, 100, 1)))
+                      ],
+                    ))
+                  ],
+                ))
           ],
         ));
   }
