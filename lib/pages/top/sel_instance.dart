@@ -42,9 +42,15 @@ class _LoginScreen extends State<LoginScreen> {
           case "auth":
             var session = uri.queryParameters['session'];
             if (session == null) {
-              Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>const TimelinePage()));
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const TimelinePage()));
             } else {
-              Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=> Authenticate(session: session)));
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Authenticate(session: session)));
             }
             break;
         }
@@ -86,11 +92,11 @@ class _LoginScreen extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                   child: loginButton(t_instance.text),
                 ),
                 Container(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                   child: ElevatedButton(
                     child: const Text("Login with Token"),
                     onPressed: () =>
@@ -99,7 +105,9 @@ class _LoginScreen extends State<LoginScreen> {
                 )
               ],
             ),
-            ElevatedButton(onPressed: ()=>{logout()}, child: Text(L10n.of(context)!.repair))
+            ElevatedButton(
+                onPressed: () => {logout()},
+                child: Text(L10n.of(context)!.repair))
           ],
         ),
       ),

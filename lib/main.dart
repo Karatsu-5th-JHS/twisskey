@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/authenticate.dart';
@@ -72,7 +73,7 @@ class _MyAppState extends State<MyApp> {
       return MaterialApp(
         title: 'Twisskey',
         locale: _locale,
-        localizationsDelegates: [
+        localizationsDelegates: const [
           L10n.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -270,7 +271,7 @@ auth(instance) {
   launchUrl(popUp);
 }
 
-Future<String> loginProcess(sessionKey) async {
+Future<String> loginProcess(sessionKey,context) async {
   if (kDebugMode) {
     print("LoginProcess");
   }
@@ -287,6 +288,9 @@ Future<String> loginProcess(sessionKey) async {
       prefs.setInt("selection", 1);
       prefs.setString("1", map["token"]);
     }
+    Fluttertoast.showToast(msg: "ログインしました");
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const TimelinePage()));
     return "";
   } else {
     //arb: failed_login
