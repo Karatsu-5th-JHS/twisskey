@@ -195,8 +195,10 @@ class _TimeLinePage extends State<TimelinePage> {
                     children: [
                       IconButton(
                           onPressed: () {
-                            Fluttertoast.showToast(
-                                msg: "PushHome", fontSize: 18);
+                            setState(() {
+                              loadEmoji();
+                              _timelineFuture = _fetchTimeline();
+                            });
                           },
                           icon: const Icon(Icons.home)),
                       IconButton(
