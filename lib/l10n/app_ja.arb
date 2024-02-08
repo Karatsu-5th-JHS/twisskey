@@ -1,0 +1,40 @@
+{
+  "@@locale": "ja",
+  
+  "login": "ログイン",
+  "login_with_token": "トークンでログイン",
+  "repair": "修復",
+  "select_instance": "インスタンスを選択",
+
+  "token": "トークン",
+  "tweet": "ツイート",
+  "yes": "はい",
+  "no": "いいえ",
+  "reply": "リプライ",
+  "reply_list": "返信一覧",
+  "reply_to": "返信先",
+  
+  "configuration": "設定",
+  "config_language": "言語設定",
+  "config_public_health": "公衆衛生",
+  "config_privacy_and_safety": "プライバシーと安全",
+
+  "experimental": "この機能は実験的な機能です。動作の不具合については一切保証しかねません。",
+  "about_config_language": "Twisskeyで利用する言語の設定をします",
+  "about_config_public_health": "電車の中でアプリを開いても恥ずかしくないように設定します",
+  "about_config_privacy_and_safety": "アカウントに関するコミュニティでの安全性を設定します",
+
+  "guide_input_instanse_url": "インスタンスのURLを入力",
+  "guide_label_server_host":"サーバーホスト",
+  "input_token": "トークンを入力",
+  "guide_label_reply": "返信をツイート",
+
+  "failed_login": "ログインできませんでした",
+  "msg_login": "ログインしました",
+  "msg_retweeted": "リツイートしました",
+  "msg_sensitive_open_error": "センシティブ設定されたファイルを見るにはツイートを開いてください",
+  "msg_successed_reply": "リプライしました",
+  "msg_failed_reply": "リプライに失敗しました",
+
+  "dialog_alertReReTweet_title": "再リツイート警告","dialog_alertReReTweet_body":"このツイートはすでにリツイートしています。再リツイートしますか？"
+}
