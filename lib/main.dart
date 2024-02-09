@@ -92,7 +92,7 @@ class _MyAppState extends State<MyApp> {
             fontFamily: 'M PLUS 1'),
         themeMode: ThemeMode.system,
         home: const MyHomePage(title: 'Twisskey'),
-        supportedLocales: const [Locale('ja', 'JP')],
+        supportedLocales: const [Locale('ja', 'JP'), Locale('zh')],
       );
     }
   }
@@ -271,7 +271,7 @@ auth(instance) {
   launchUrl(popUp);
 }
 
-Future<String> loginProcess(sessionKey,context) async {
+Future<String> loginProcess(sessionKey, context) async {
   if (kDebugMode) {
     print("LoginProcess");
   }
