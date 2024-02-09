@@ -11,6 +11,7 @@ import 'package:twisskey/api/emojis.dart';
 import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/api/notes.dart';
 import 'package:twisskey/api/reaction.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:twisskey/api/renote.dart';
 import 'package:twisskey/main.dart';
@@ -142,7 +143,7 @@ class _TimeLinePage extends State<TimelinePage> {
                 },
               ),
               ListTile(
-                title: const Text('Configuration'),
+                title: Text(L10n.of(context)!.configuration),
                 onTap: () {
                   Navigator.push(
                       context,
@@ -151,7 +152,7 @@ class _TimeLinePage extends State<TimelinePage> {
                 },
               ),
               ListTile(
-                title: const Text('About'),
+                title: Text(L10n.of(context)!.about_this_app),
                 onTap: () {
                   // Do something
                   Navigator.push(
@@ -161,13 +162,13 @@ class _TimeLinePage extends State<TimelinePage> {
                 },
               ),
               ListTile(
-                title: const Text('Logout'),
+                title: Text(L10n.of(context)!.logout),
                 onTap: () {
                   // Do something
                   logout();
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) {
-                    return MyApp();
+                    return const MyApp();
                   }));
                 },
               ),
@@ -474,13 +475,13 @@ class _TimeLinePage extends State<TimelinePage> {
                                                                                 showDialog<void>(
                                                                                     builder: (context) {
                                                                                       return AlertDialog(
-                                                                                        title: const Text("再リツイート警告"),
-                                                                                        content: const Text("このツイートはすでにリツイート済みです。再リツイートしますか？(この警告は将来的に設定で無効化できます)"),
+                                                                                        title: Text(L10n.of(context)!.dialog_alertReReTweet_title),
+                                                                                        content: Text(L10n.of(context)!.dialog_alertReReTweet_body),
                                                                                         actions: <Widget>[
                                                                                           GestureDetector(
                                                                                             child: Container(
                                                                                               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                                                                                              child: const Text("いいえ"),
+                                                                                              child: Text(L10n.of(context)!.no),
                                                                                             ),
                                                                                             onTap: () {
                                                                                               Navigator.pop(context);
@@ -489,11 +490,11 @@ class _TimeLinePage extends State<TimelinePage> {
                                                                                           GestureDetector(
                                                                                             child: Container(
                                                                                               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                                                                                              child: const Text("はい"),
+                                                                                              child: Text(L10n.of(context)!.yes),
                                                                                             ),
                                                                                             onTap: () {
                                                                                               DoingRenote().renote(feed["id"]);
-                                                                                              Fluttertoast.showToast(msg: "リツイートしました", fontSize: 18);
+                                                                                              Fluttertoast.showToast(msg: L10n.of(context)!.msg_retweeted, fontSize: 18);
                                                                                               Navigator.pop(context);
                                                                                             },
                                                                                           )
@@ -505,7 +506,7 @@ class _TimeLinePage extends State<TimelinePage> {
                                                                             else
                                                                               {
                                                                                 DoingRenote().renote(feed["id"]),
-                                                                                Fluttertoast.showToast(msg: "リツイートしました", fontSize: 18)
+                                                                                Fluttertoast.showToast(msg: L10n.of(context)!.msg_retweeted, fontSize: 18)
                                                                               }
                                                                           });
                                                             },
@@ -740,8 +741,10 @@ class _TimeLinePage extends State<TimelinePage> {
                     const Icon(Icons.error)),
           ),
         ),
-        onTap: () =>
-            {Fluttertoast.showToast(msg: "センシティブ指定されたファイルを見るにはツイートをタップしてください")},
+        onTap: () => {
+          Fluttertoast.showToast(
+              msg: L10n.of(context)!.msg_sensitive_open_error)
+        },
       );
     } else if (!(sensitiveFlug["type"].contains("video"))) {
       return GestureDetector(
@@ -880,8 +883,8 @@ class _TimeLinePage extends State<TimelinePage> {
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
-                                            const Text(
-                                              "返信先",
+                                            Text(
+                                              L10n.of(context)!.reply_to,
                                               style: TextStyle(fontSize: 12.0),
                                               overflow: TextOverflow.clip,
                                             ),

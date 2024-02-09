@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:twisskey/api/drive.dart';
 import 'package:twisskey/api/myAccount.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class newTweet extends StatefulWidget {
   const newTweet({Key? key}) : super(key: key);
@@ -71,11 +72,11 @@ class _newTweet extends State<newTweet> {
     var sizeHeight = MediaQuery.of(context).size.height;
     return Scaffold(
         appBar: AppBar(
-          title: const Text("ツイート"),
+          title: Text(L10n.of(context)!.tweet),
           actions: [
             OutlinedButton(
               onPressed: () => {
-                doTweet(t_tweet.text, fileIds),
+                doTweet(t_tweet.text, fileIds, L10n.of(context)),
                 Navigator.pop(context),
               },
               style: OutlinedButton.styleFrom(
@@ -83,7 +84,7 @@ class _newTweet extends State<newTweet> {
                   foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
                   side: const BorderSide(
                       width: 1, color: Color.fromRGBO(150, 191, 235, 1))),
-              child: const Text("ツイート"),
+              child: Text(L10n.of(context)!.tweet),
             )
           ],
         ),
@@ -98,8 +99,8 @@ class _newTweet extends State<newTweet> {
                     keyboardType: TextInputType.multiline,
                     minLines: 10,
                     maxLines: 10,
-                    decoration: const InputDecoration(
-                      hintText: "いまどうしてる？",
+                    decoration: InputDecoration(
+                      hintText: L10n.of(context)!.guide_new_tweet,
                     ),
                   ),
                   if (imageState != "") Image.network(imageState),
@@ -124,7 +125,7 @@ class _newTweet extends State<newTweet> {
                 ]))));
   }
 
-  Future doTweet(String? tweet, List<String> fileIds) async {
+  Future doTweet(String? tweet, List<String> fileIds, l1) async {
     var token = await sysAccount().getToken();
     var host = await sysAccount().getHost();
     final Uri uri = Uri.parse("https://$host/api/notes/create");
@@ -162,12 +163,12 @@ class _newTweet extends State<newTweet> {
       print(map["createdNote"]);
     }
     if (map["createdNote"] == null) {
-      Fluttertoast.showToast(msg: "ツイートの作成に失敗しました", fontSize: 18);
+      Fluttertoast.showToast(msg: l1!.msg_failed_tweet, fontSize: 18);
       if (kDebugMode) {
         print(map);
       }
     } else {
-      Fluttertoast.showToast(msg: "ツイートしました", fontSize: 18);
+      Fluttertoast.showToast(msg: l1!.msg_tweet, fontSize: 18);
     }
   }
 }
