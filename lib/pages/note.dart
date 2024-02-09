@@ -17,6 +17,7 @@ import 'package:http/http.dart' as http;
 import 'package:twisskey/pages/viewImage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:twisskey/pages/reply.dart';
 
 class viewNote extends StatefulWidget {
   final String noteId;
@@ -188,11 +189,15 @@ class _noteViewPage extends State<viewNote> {
                                                 children: [
                                                   TextButton(
                                                       onPressed: () => {
-                                                            Fluttertoast
-                                                                .showToast(
-                                                                    msg: "リプライ",
-                                                                    fontSize:
-                                                                        18)
+                                                            Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                    builder:
+                                                                        (context) {
+                                                              return Reply(
+                                                                id: feed["id"],
+                                                              );
+                                                            }))
                                                           },
                                                       child: const Icon(
                                                           Icons.reply)),
