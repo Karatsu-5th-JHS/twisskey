@@ -443,161 +443,212 @@ class _TimeLinePage extends State<TimelinePage> {
                                                                                                 style: const TextStyle(fontSize: 15.0)),*/
                                                     checkImageOrText(
                                                         text, feed["files"]),
-                                                    Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceEvenly,
-                                                        children: [
-                                                          TextButton(
-                                                              onPressed: () => {
-                                                                    Navigator.push(
-                                                                        context,
-                                                                        MaterialPageRoute(builder:
-                                                                            (context) {
-                                                                      return Reply(
-                                                                        id: feed[
-                                                                            "id"],
-                                                                      );
-                                                                    }))
-                                                                  },
-                                                              child: const Icon(
-                                                                  Icons.reply)),
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              DoingRenote()
-                                                                  .check(id)
-                                                                  .then(
-                                                                      (value) =>
-                                                                          {
-                                                                            if (value ==
-                                                                                1)
-                                                                              {
-                                                                                showDialog<void>(
-                                                                                    builder: (context) {
-                                                                                      return AlertDialog(
-                                                                                        title: Text(L10n.of(context)!.dialog_alertReReTweet_title),
-                                                                                        content: Text(L10n.of(context)!.dialog_alertReReTweet_body),
-                                                                                        actions: <Widget>[
-                                                                                          GestureDetector(
-                                                                                            child: Container(
-                                                                                              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                                                                                              child: Text(L10n.of(context)!.no),
-                                                                                            ),
-                                                                                            onTap: () {
-                                                                                              Navigator.pop(context);
-                                                                                            },
-                                                                                          ),
-                                                                                          GestureDetector(
-                                                                                            child: Container(
-                                                                                              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                                                                                              child: Text(L10n.of(context)!.yes),
-                                                                                            ),
-                                                                                            onTap: () {
-                                                                                              DoingRenote().renote(feed["id"]);
-                                                                                              Fluttertoast.showToast(msg: L10n.of(context)!.msg_retweeted, fontSize: 18);
-                                                                                              Navigator.pop(context);
-                                                                                            },
-                                                                                          )
-                                                                                        ],
-                                                                                      );
-                                                                                    },
-                                                                                    context: context)
-                                                                              }
-                                                                            else
-                                                                              {
-                                                                                DoingRenote().renote(feed["id"]),
-                                                                                Fluttertoast.showToast(msg: L10n.of(context)!.msg_retweeted, fontSize: 18)
-                                                                              }
-                                                                          });
-                                                            },
-                                                            child: Row(
-                                                              children: [
-                                                                const Icon(Icons
-                                                                    .repeat),
-                                                                Text(feed[
-                                                                        "renoteCount"]
-                                                                    .toString())
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          TextButton(
-                                                              onPressed: () {
-                                                                DoReaction()
-                                                                    .check(
-                                                                        feed[
-                                                                            "id"],
-                                                                        "❤")
-                                                                    .then((value) =>
-                                                                        setState(
-                                                                            () {
-                                                                          DoReaction()
-                                                                              .getReactions(feed["id"])
-                                                                              .then((e) => reactionCount = e);
-                                                                          _react =
-                                                                              getIcon(feed["id"]);
-                                                                        }));
-                                                              },
-                                                              child: FutureBuilder<
-                                                                      dynamic>(
-                                                                  future:
-                                                                      _react,
-                                                                  builder: (BuildContext
-                                                                          context,
-                                                                      AsyncSnapshot<
-                                                                              dynamic>
-                                                                          snapshottt) {
-                                                                    if (snapshottt
-                                                                            .connectionState !=
-                                                                        ConnectionState
-                                                                            .done) {
-                                                                      return Row(
-                                                                          children: [
-                                                                            const Icon(Icons.favorite_outline),
-                                                                            Text(reactionCount)
-                                                                          ]);
-                                                                    }
-                                                                    if (snapshottt
-                                                                        .hasData) {
-                                                                      if (snapshottt
-                                                                              .data["status"] ==
-                                                                          "yes") {
-                                                                        return Row(
-                                                                            children: [
-                                                                              const Icon(Icons.favorite),
-                                                                              Text(snapshottt.data["reactions"])
-                                                                            ]);
-                                                                      } else {
-                                                                        return Row(
-                                                                            children: [
-                                                                              const Icon(Icons.favorite_outline),
-                                                                              Text(snapshottt.data["reactions"])
-                                                                            ]);
-                                                                      }
-                                                                    } else {
-                                                                      return Row(
-                                                                          children: [
-                                                                            const Icon(Icons.favorite_outline),
-                                                                            Text(snapshottt.data["reactions"])
-                                                                          ]);
-                                                                    }
-                                                                  })),
-                                                          TextButton(
-                                                              onPressed: () => {
-                                                                    Fluttertoast.showToast(
-                                                                        msg:
-                                                                            "その他メニュー",
-                                                                        fontSize:
-                                                                            18)
-                                                                  },
-                                                              child: const Icon(
-                                                                  Icons
-                                                                      .more_horiz))
-                                                        ]),
                                                   ],
                                                 ),
                                               ),
                                             ],
                                           ),
+                                          Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                TextButton(
+                                                    onPressed: () => {
+                                                          Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) {
+                                                            return Reply(
+                                                              id: feed["id"],
+                                                            );
+                                                          }))
+                                                        },
+                                                    child: const Icon(
+                                                        Icons.reply)),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    DoingRenote()
+                                                        .check(id)
+                                                        .then((value) => {
+                                                              if (value == 1)
+                                                                {
+                                                                  showDialog<
+                                                                          void>(
+                                                                      builder:
+                                                                          (context) {
+                                                                        return AlertDialog(
+                                                                          title:
+                                                                              Text(L10n.of(context)!.dialog_alertReReTweet_title),
+                                                                          content:
+                                                                              Text(L10n.of(context)!.dialog_alertReReTweet_body),
+                                                                          actions: <Widget>[
+                                                                            GestureDetector(
+                                                                              child: Container(
+                                                                                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                                                                                child: Text(L10n.of(context)!.no),
+                                                                              ),
+                                                                              onTap: () {
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                            ),
+                                                                            GestureDetector(
+                                                                              child: Container(
+                                                                                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                                                                                child: Text(L10n.of(context)!.yes),
+                                                                              ),
+                                                                              onTap: () {
+                                                                                DoingRenote().renote(feed["id"]);
+                                                                                Fluttertoast.showToast(msg: L10n.of(context)!.msg_retweeted, fontSize: 18);
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                            )
+                                                                          ],
+                                                                        );
+                                                                      },
+                                                                      context:
+                                                                          context)
+                                                                }
+                                                              else
+                                                                {
+                                                                  DoingRenote()
+                                                                      .renote(feed[
+                                                                          "id"]),
+                                                                  Fluttertoast.showToast(
+                                                                      msg: L10n.of(
+                                                                              context)!
+                                                                          .msg_retweeted,
+                                                                      fontSize:
+                                                                          18)
+                                                                }
+                                                            });
+                                                  },
+                                                  child: Row(
+                                                    children: [
+                                                      const Icon(Icons.repeat),
+                                                      Text(feed["renoteCount"]
+                                                          .toString())
+                                                    ],
+                                                  ),
+                                                ),
+                                                TextButton(
+                                                    onPressed: () {
+                                                      DoReaction()
+                                                          .check(
+                                                              feed["id"], "❤")
+                                                          .then((value) =>
+                                                              setState(() {
+                                                                DoReaction()
+                                                                    .getReactions(
+                                                                        feed[
+                                                                            "id"])
+                                                                    .then((e) =>
+                                                                        reactionCount =
+                                                                            e);
+                                                                _react = getIcon(
+                                                                    feed["id"]);
+                                                              }));
+                                                    },
+                                                    child: FutureBuilder<
+                                                            dynamic>(
+                                                        future: _react,
+                                                        builder: (BuildContext
+                                                                context,
+                                                            AsyncSnapshot<
+                                                                    dynamic>
+                                                                snapshottt) {
+                                                          if (snapshottt
+                                                                  .connectionState !=
+                                                              ConnectionState
+                                                                  .done) {
+                                                            return Row(
+                                                                children: [
+                                                                  const Icon(Icons
+                                                                      .favorite_outline),
+                                                                  Text(
+                                                                      reactionCount)
+                                                                ]);
+                                                          }
+                                                          if (snapshottt
+                                                              .hasData) {
+                                                            if (snapshottt.data[
+                                                                    "status"] ==
+                                                                "yes") {
+                                                              return Row(
+                                                                  children: [
+                                                                    const Icon(Icons
+                                                                        .favorite),
+                                                                    Text(snapshottt
+                                                                            .data[
+                                                                        "reactions"])
+                                                                  ]);
+                                                            } else {
+                                                              return Row(
+                                                                  children: [
+                                                                    const Icon(Icons
+                                                                        .favorite_outline),
+                                                                    Text(snapshottt
+                                                                            .data[
+                                                                        "reactions"])
+                                                                  ]);
+                                                            }
+                                                          } else {
+                                                            return Row(
+                                                                children: [
+                                                                  const Icon(Icons
+                                                                      .favorite_outline),
+                                                                  Text(snapshottt
+                                                                          .data[
+                                                                      "reactions"])
+                                                                ]);
+                                                          }
+                                                        })),
+                                                TextButton(
+                                                    onPressed: () => {
+                                                          Fluttertoast
+                                                              .showToast(
+                                                                  msg:
+                                                                      "その他メニュー",
+                                                                  fontSize: 18)
+                                                        },
+                                                    child: const Icon(
+                                                        Icons.more_horiz)),
+                                                TextButton(
+                                                    onPressed: () {
+                                                      showDialog<void>(
+                                                          builder: (context) {
+                                                            return AlertDialog(
+                                                              title: Text(
+                                                                  "リアクション一覧"),
+                                                              content: Text(
+                                                                  "多分ここにリアクション一覧が入ると思われます"),
+                                                              actions: <Widget>[
+                                                                GestureDetector(
+                                                                  child:
+                                                                      Container(
+                                                                    padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                        vertical:
+                                                                            2,
+                                                                        horizontal:
+                                                                            2),
+                                                                    child: Text(
+                                                                        L10n.of(context)!
+                                                                            .close),
+                                                                  ),
+                                                                  onTap: () {
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            );
+                                                          },
+                                                          context: context);
+                                                    },
+                                                    child: const Icon(
+                                                        Icons.equalizer))
+                                              ]),
                                         ])),
                               ),
                               const Divider(
