@@ -1,6 +1,7 @@
 import 'package:twisskey/api/language/helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:twisskey/main.dart';
 
 class Language extends StatefulWidget {
   const Language({Key? key}) : super(key: key);
@@ -60,9 +61,12 @@ class _Language extends State<Language> {
                 value: 'ja',
                 child: Text('日本語'),
               ),
+              DropdownMenuItem(value: 'zh', child: Text('中国人'))
             ],
             onChanged: (value) {
-              print(value);
+              _changeLanguage(value.toString());
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const MyApp()));
             },
             value: _locale?.languageCode,
           )
