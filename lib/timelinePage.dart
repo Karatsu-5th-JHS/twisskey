@@ -776,10 +776,11 @@ class _TimeLinePage extends State<TimelinePage> {
         future: Note().fetchReply(feed["id"]),
         builder: (context, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Text("リプライの取得に失敗しました(接続に失敗しました)");
+            return Text(
+                L10n.of(context)!.failed_conection_while_getting_replies);
           }
           if (!snap.hasData) {
-            return const Text("リプライの取得に失敗しました(データがありません)");
+            return Text(L10n.of(context)!.failed_getting_replies);
           }
           return ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
