@@ -92,7 +92,11 @@ class _MyAppState extends State<MyApp> {
             fontFamily: 'M PLUS 1'),
         themeMode: ThemeMode.system,
         home: const MyHomePage(title: 'Twisskey'),
-        supportedLocales: const [Locale('ja', 'JP'), Locale('zh')],
+        supportedLocales: const [
+          Locale('ja', 'JP'),
+          Locale('zh'),
+          Locale('en')
+        ],
       );
     }
   }

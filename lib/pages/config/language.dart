@@ -61,7 +61,11 @@ class _Language extends State<Language> {
                 value: 'ja',
                 child: Text('日本語'),
               ),
-              DropdownMenuItem(value: 'zh', child: Text('中国人'))
+              DropdownMenuItem(value: 'zh', child: Text('中国人')),
+              DropdownMenuItem(
+                value: 'en',
+                child: Text('English'),
+              ),
             ],
             onChanged: (value) {
               _changeLanguage(value.toString());
