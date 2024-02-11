@@ -92,8 +92,8 @@ class _TimeLinePage extends State<TimelinePage> {
           title: const Row(
             children: [
               Image(
-                  image: AssetImage('asset/tkngh.png'), width: 20, height: 20),
-              Text("TKNGH")
+                  image: AssetImage('asset/twisskey.png'), width: 20, height: 20),
+              Text("Twisskey")
             ],
           ),
           actions: [
@@ -483,25 +483,20 @@ class _TimeLinePage extends State<TimelinePage> {
                                                                           content:
                                                                               Text(L10n.of(context)!.dialog_alertReReTweet_body),
                                                                           actions: <Widget>[
-                                                                            GestureDetector(
-                                                                              child: Container(
-                                                                                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                                                                                child: Text(L10n.of(context)!.no),
-                                                                              ),
-                                                                              onTap: () {
+                                                                            TextButton(
+                                                                              child: Text(L10n.of(context)!.no),
+                                                                              onPressed: () {
                                                                                 Navigator.pop(context);
                                                                               },
                                                                             ),
-                                                                            GestureDetector(
-                                                                              child: Container(
-                                                                                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                                                                                child: Text(L10n.of(context)!.yes),
-                                                                              ),
-                                                                              onTap: () {
+                                                                            ElevatedButton(
+                                                                              child: Text(L10n.of(context)!.yes),
+                                                                              onPressed: () {
                                                                                 DoingRenote().renote(feed["id"]);
                                                                                 Fluttertoast.showToast(msg: L10n.of(context)!.msg_retweeted, fontSize: 18);
                                                                                 Navigator.pop(context);
                                                                               },
+                                                                              style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
                                                                             )
                                                                           ],
                                                                         );
@@ -615,36 +610,42 @@ class _TimeLinePage extends State<TimelinePage> {
                                                         Icons.more_horiz)),
                                                 TextButton(
                                                     onPressed: () {
-                                                      showDialog<void>(
-                                                          builder: (context) {
-                                                            return AlertDialog(
-                                                              title: Text(
-                                                                  "リアクション一覧"),
-                                                              content: Text(
-                                                                  "多分ここにリアクション一覧が入ると思われます"),
-                                                              actions: <Widget>[
-                                                                GestureDetector(
-                                                                  child:
-                                                                      Container(
-                                                                    padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                        vertical:
-                                                                            2,
-                                                                        horizontal:
-                                                                            2),
-                                                                    child: Text(
-                                                                        L10n.of(context)!
-                                                                            .close),
+                                                      DoReaction()
+                                                          .getReactionsList(
+                                                              id, emojiList)
+                                                          .then((value) {
+                                                        showDialog<void>(
+                                                            builder: (context) {
+                                                              return AlertDialog(
+                                                                title: Text(
+                                                                    "リアクション一覧"),
+                                                                content: ListView(
+                                                                    children:
+                                                                        value),
+                                                                actions: <Widget>[
+                                                                  GestureDetector(
+                                                                    child:
+                                                                        Container(
+                                                                          padding: const EdgeInsets
+                                                                          .symmetric(
+                                                                          vertical:
+                                                                              2,
+                                                                          horizontal:
+                                                                              2),
+                                                                          child: Text(
+                                                                          L10n.of(context)!
+                                                                              .close),
+                                                                    ),
+                                                                    onTap: () {
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
                                                                   ),
-                                                                  onTap: () {
-                                                                    Navigator.pop(
-                                                                        context);
-                                                                  },
-                                                                ),
-                                                              ],
-                                                            );
-                                                          },
-                                                          context: context);
+                                                                ],
+                                                              );
+                                                            },
+                                                            context: context);
+                                                      });
                                                     },
                                                     child: const Icon(
                                                         Icons.equalizer))
@@ -853,6 +854,7 @@ class _TimeLinePage extends State<TimelinePage> {
                 var instance = "";
                 if (feed["user"]["host"] != null) {
                   instance = '@${feed["user"]["host"]}';
+                  EmojiControl().saveHosts(feed["user"]["host"]);
                 }
                 if (author["name"] == null) {
                   author["name"] = "";
