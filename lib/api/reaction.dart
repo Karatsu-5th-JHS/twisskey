@@ -116,6 +116,7 @@ class DoReaction {
   }
 
   Future<List<Widget>> getReactionsList(
+      //リアクション一覧を表示する関数
       String noteId, Map<String, String> emojiList) async {
     var token = await sysAccount().getToken();
     var host = await sysAccount().getHost();
