@@ -11,8 +11,10 @@ import 'package:twisskey/api/emojis.dart';
 import 'package:twisskey/api/myAccount.dart';
 import 'package:twisskey/api/notes.dart';
 import 'package:twisskey/api/reaction.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:twisskey/api/renote.dart';
+import 'package:twisskey/config/sensitive.dart';
 import 'package:twisskey/main.dart';
 import 'package:twisskey/newTweet.dart';
 import 'package:twisskey/pages/config.dart';
@@ -91,11 +93,14 @@ class _TimeLinePage extends State<TimelinePage> {
           title: const Row(
             children: [
               Image(
-                  image: AssetImage('asset/tkngh.png'), width: 20, height: 20),
-              Text("TKNGH")
+                  image: AssetImage('asset/twisskey.png'), width: 20, height: 20),
+              Text("Twisskey")
             ],
           ),
           actions: [
+            IconButton(onPressed: (){
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const MyApp()));
+            }, icon: const Icon(Icons.refresh)),
             IconButton(
               icon: const Icon(Icons.download_for_offline_outlined),
               tooltip: 'Cache emojis from instances.',
@@ -142,7 +147,7 @@ class _TimeLinePage extends State<TimelinePage> {
                 },
               ),
               ListTile(
-                title: const Text('Configuration'),
+                title: Text(L10n.of(context)!.configuration),
                 onTap: () {
                   Navigator.push(
                       context,
@@ -151,7 +156,7 @@ class _TimeLinePage extends State<TimelinePage> {
                 },
               ),
               ListTile(
-                title: const Text('About'),
+                title: Text(L10n.of(context)!.about_this_app),
                 onTap: () {
                   // Do something
                   Navigator.push(
@@ -161,13 +166,13 @@ class _TimeLinePage extends State<TimelinePage> {
                 },
               ),
               ListTile(
-                title: const Text('Logout'),
+                title: Text(L10n.of(context)!.logout),
                 onTap: () {
                   // Do something
                   logout();
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) {
-                    return MyApp();
+                    return const MyApp();
                   }));
                 },
               ),
@@ -442,161 +447,213 @@ class _TimeLinePage extends State<TimelinePage> {
                                                                                                 style: const TextStyle(fontSize: 15.0)),*/
                                                     checkImageOrText(
                                                         text, feed["files"]),
-                                                    Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceEvenly,
-                                                        children: [
-                                                          TextButton(
-                                                              onPressed: () => {
-                                                                    Navigator.push(
-                                                                        context,
-                                                                        MaterialPageRoute(builder:
-                                                                            (context) {
-                                                                      return Reply(
-                                                                        id: feed[
-                                                                            "id"],
-                                                                      );
-                                                                    }))
-                                                                  },
-                                                              child: const Icon(
-                                                                  Icons.reply)),
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              DoingRenote()
-                                                                  .check(id)
-                                                                  .then(
-                                                                      (value) =>
-                                                                          {
-                                                                            if (value ==
-                                                                                1)
-                                                                              {
-                                                                                showDialog<void>(
-                                                                                    builder: (context) {
-                                                                                      return AlertDialog(
-                                                                                        title: const Text("再リツイート警告"),
-                                                                                        content: const Text("このツイートはすでにリツイート済みです。再リツイートしますか？(この警告は将来的に設定で無効化できます)"),
-                                                                                        actions: <Widget>[
-                                                                                          GestureDetector(
-                                                                                            child: Container(
-                                                                                              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                                                                                              child: const Text("いいえ"),
-                                                                                            ),
-                                                                                            onTap: () {
-                                                                                              Navigator.pop(context);
-                                                                                            },
-                                                                                          ),
-                                                                                          GestureDetector(
-                                                                                            child: Container(
-                                                                                              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                                                                                              child: const Text("はい"),
-                                                                                            ),
-                                                                                            onTap: () {
-                                                                                              DoingRenote().renote(feed["id"]);
-                                                                                              Fluttertoast.showToast(msg: "リツイートしました", fontSize: 18);
-                                                                                              Navigator.pop(context);
-                                                                                            },
-                                                                                          )
-                                                                                        ],
-                                                                                      );
-                                                                                    },
-                                                                                    context: context)
-                                                                              }
-                                                                            else
-                                                                              {
-                                                                                DoingRenote().renote(feed["id"]),
-                                                                                Fluttertoast.showToast(msg: "リツイートしました", fontSize: 18)
-                                                                              }
-                                                                          });
-                                                            },
-                                                            child: Row(
-                                                              children: [
-                                                                const Icon(Icons
-                                                                    .repeat),
-                                                                Text(feed[
-                                                                        "renoteCount"]
-                                                                    .toString())
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          TextButton(
-                                                              onPressed: () {
-                                                                DoReaction()
-                                                                    .check(
-                                                                        feed[
-                                                                            "id"],
-                                                                        "❤")
-                                                                    .then((value) =>
-                                                                        setState(
-                                                                            () {
-                                                                          DoReaction()
-                                                                              .getReactions(feed["id"])
-                                                                              .then((e) => reactionCount = e);
-                                                                          _react =
-                                                                              getIcon(feed["id"]);
-                                                                        }));
-                                                              },
-                                                              child: FutureBuilder<
-                                                                      dynamic>(
-                                                                  future:
-                                                                      _react,
-                                                                  builder: (BuildContext
-                                                                          context,
-                                                                      AsyncSnapshot<
-                                                                              dynamic>
-                                                                          snapshottt) {
-                                                                    if (snapshottt
-                                                                            .connectionState !=
-                                                                        ConnectionState
-                                                                            .done) {
-                                                                      return Row(
-                                                                          children: [
-                                                                            const Icon(Icons.favorite_outline),
-                                                                            Text(reactionCount)
-                                                                          ]);
-                                                                    }
-                                                                    if (snapshottt
-                                                                        .hasData) {
-                                                                      if (snapshottt
-                                                                              .data["status"] ==
-                                                                          "yes") {
-                                                                        return Row(
-                                                                            children: [
-                                                                              const Icon(Icons.favorite),
-                                                                              Text(snapshottt.data["reactions"])
-                                                                            ]);
-                                                                      } else {
-                                                                        return Row(
-                                                                            children: [
-                                                                              const Icon(Icons.favorite_outline),
-                                                                              Text(snapshottt.data["reactions"])
-                                                                            ]);
-                                                                      }
-                                                                    } else {
-                                                                      return Row(
-                                                                          children: [
-                                                                            const Icon(Icons.favorite_outline),
-                                                                            Text(snapshottt.data["reactions"])
-                                                                          ]);
-                                                                    }
-                                                                  })),
-                                                          TextButton(
-                                                              onPressed: () => {
-                                                                    Fluttertoast.showToast(
-                                                                        msg:
-                                                                            "その他メニュー",
-                                                                        fontSize:
-                                                                            18)
-                                                                  },
-                                                              child: const Icon(
-                                                                  Icons
-                                                                      .more_horiz))
-                                                        ]),
                                                   ],
                                                 ),
                                               ),
                                             ],
                                           ),
+                                          Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                TextButton(
+                                                    onPressed: () => {
+                                                          Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) {
+                                                            return Reply(
+                                                              id: feed["id"],
+                                                            );
+                                                          }))
+                                                        },
+                                                    child: const Icon(
+                                                        Icons.reply)),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    DoingRenote()
+                                                        .check(id)
+                                                        .then((value) => {
+                                                              if (value == 1)
+                                                                {
+                                                                  showDialog<
+                                                                          void>(
+                                                                      builder:
+                                                                          (context) {
+                                                                        return AlertDialog(
+                                                                          title:
+                                                                              Text(L10n.of(context)!.dialog_alertReReTweet_title),
+                                                                          content:
+                                                                              Text(L10n.of(context)!.dialog_alertReReTweet_body),
+                                                                          actions: <Widget>[
+                                                                            TextButton(
+                                                                              child: Text(L10n.of(context)!.no),
+                                                                              onPressed: () {
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                            ),
+                                                                            ElevatedButton(
+                                                                              child: Text(L10n.of(context)!.yes),
+                                                                              onPressed: () {
+                                                                                DoingRenote().renote(feed["id"]);
+                                                                                Fluttertoast.showToast(msg: L10n.of(context)!.msg_retweeted, fontSize: 18);
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                              style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
+                                                                            )
+                                                                          ],
+                                                                        );
+                                                                      },
+                                                                      context:
+                                                                          context)
+                                                                }
+                                                              else
+                                                                {
+                                                                  DoingRenote()
+                                                                      .renote(feed[
+                                                                          "id"]),
+                                                                  Fluttertoast.showToast(
+                                                                      msg: L10n.of(
+                                                                              context)!
+                                                                          .msg_retweeted,
+                                                                      fontSize:
+                                                                          18)
+                                                                }
+                                                            });
+                                                  },
+                                                  child: Row(
+                                                    children: [
+                                                      const Icon(Icons.repeat),
+                                                      Text(feed["renoteCount"]
+                                                          .toString())
+                                                    ],
+                                                  ),
+                                                ),
+                                                TextButton(
+                                                    onPressed: () {
+                                                      DoReaction()
+                                                          .check(
+                                                              feed["id"], "❤")
+                                                          .then((value) =>
+                                                              setState(() {
+                                                                DoReaction()
+                                                                    .getReactions(
+                                                                        feed[
+                                                                            "id"])
+                                                                    .then((e) =>
+                                                                        reactionCount =
+                                                                            e);
+                                                                _react = getIcon(
+                                                                    feed["id"]);
+                                                              }));
+                                                    },
+                                                    child: FutureBuilder<
+                                                            dynamic>(
+                                                        future: _react,
+                                                        builder: (BuildContext
+                                                                context,
+                                                            AsyncSnapshot<
+                                                                    dynamic>
+                                                                snapshottt) {
+                                                          if (snapshottt
+                                                                  .connectionState !=
+                                                              ConnectionState
+                                                                  .done) {
+                                                            return Row(
+                                                                children: [
+                                                                  const Icon(Icons
+                                                                      .favorite_outline),
+                                                                  Text(
+                                                                      reactionCount)
+                                                                ]);
+                                                          }
+                                                          if (snapshottt
+                                                              .hasData) {
+                                                            if (snapshottt.data[
+                                                                    "status"] ==
+                                                                "yes") {
+                                                              return Row(
+                                                                  children: [
+                                                                    const Icon(Icons
+                                                                        .favorite),
+                                                                    Text(snapshottt
+                                                                            .data[
+                                                                        "reactions"])
+                                                                  ]);
+                                                            } else {
+                                                              return Row(
+                                                                  children: [
+                                                                    const Icon(Icons
+                                                                        .favorite_outline),
+                                                                    Text(snapshottt
+                                                                            .data[
+                                                                        "reactions"])
+                                                                  ]);
+                                                            }
+                                                          } else {
+                                                            return Row(
+                                                                children: [
+                                                                  const Icon(Icons
+                                                                      .favorite_outline),
+                                                                  Text(snapshottt
+                                                                          .data[
+                                                                      "reactions"])
+                                                                ]);
+                                                          }
+                                                        })),
+                                                TextButton(
+                                                    onPressed: () => {
+                                                          Fluttertoast
+                                                              .showToast(
+                                                                  msg:
+                                                                      "その他メニュー",
+                                                                  fontSize: 18)
+                                                        },
+                                                    child: const Icon(
+                                                        Icons.more_horiz)),
+                                                TextButton(
+                                                    onPressed: () {
+                                                      DoReaction()
+                                                          .getReactionsList(
+                                                              id, emojiList)
+                                                          .then((value) {
+                                                        showDialog<void>(
+                                                            builder: (context) {
+                                                              return AlertDialog(
+                                                                title: Text(
+                                                                    "リアクション一覧"),
+                                                                content: ListView(
+                                                                    children:
+                                                                        value),
+                                                                actions: <Widget>[
+                                                                  GestureDetector(
+                                                                    child:
+                                                                        Container(
+                                                                          padding: const EdgeInsets
+                                                                          .symmetric(
+                                                                          vertical:
+                                                                              2,
+                                                                          horizontal:
+                                                                              2),
+                                                                          child: Text(
+                                                                          L10n.of(context)!
+                                                                              .close),
+                                                                    ),
+                                                                    onTap: () {
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            },
+                                                            context: context);
+                                                      });
+                                                    },
+                                                    child: const Icon(
+                                                        Icons.equalizer))
+                                              ]),
                                         ])),
                               ),
                               const Divider(
@@ -668,7 +725,7 @@ class _TimeLinePage extends State<TimelinePage> {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: [for (var file in image) isNeedBlur(file)],
+                children: [for (var file in image) FutureBuilder(future: isNeedBlur(file), builder: (context,ss){if(ss.hasData){return ss.data!;}else{return Text("error");}})],
               ),
             )
           ],
@@ -707,62 +764,72 @@ class _TimeLinePage extends State<TimelinePage> {
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: [for (var file in image) isNeedBlur(file)],
+          children: [for (var file in image) FutureBuilder(future: isNeedBlur(file), builder: (context,ss){if(ss.hasData){return ss.data!;}else{return Text("error");}})],
         ),
       );
     }
   }
 
-  Widget isNeedBlur(sensitiveFlug) {
+  Future<Widget> isNeedBlur(sensitiveFlug) {
     var image = sensitiveFlug["url"];
     var sf = sensitiveFlug["isSensitive"];
     if (kDebugMode) {
       print("isSensitive:" + sensitiveFlug["type"]);
     }
-    if (sf == true && !(sensitiveFlug["type"].contains("video"))) {
-      if (kDebugMode) {
-        print("Blur skip");
+    return config_timeline_sensitive().get().then((e) {
+      if (e == true) {
+        sf = false;
       }
-      return GestureDetector(
-        child: Blur(
-          blur: 20,
-          child: SizedBox(
-            height: 300,
-            width: 300,
-            child: CachedNetworkImage(
-                imageUrl: image,
-                imageBuilder: (context, imageProvider) => Image(
-                      image: imageProvider,
-                      width: 300,
-                      height: 300,
-                    ),
-                errorWidget: (context, url, dynamic error) =>
-                    const Icon(Icons.error)),
+      if (sf == true && !(sensitiveFlug["type"].contains("video"))) {
+        if (kDebugMode) {
+          print("Blur skip");
+        }
+        return GestureDetector(
+          child: Blur(
+            blur: 20,
+            child: SizedBox(
+              height: 300,
+              width: 300,
+              child: CachedNetworkImage(
+                  imageUrl: image,
+                  imageBuilder: (context, imageProvider) =>
+                      Image(
+                        image: imageProvider,
+                        width: 300,
+                        height: 300,
+                      ),
+                  errorWidget: (context, url, dynamic error) =>
+                  const Icon(Icons.error)),
+            ),
           ),
-        ),
-        onTap: () =>
-            {Fluttertoast.showToast(msg: "センシティブ指定されたファイルを見るにはツイートをタップしてください")},
-      );
-    } else if (!(sensitiveFlug["type"].contains("video"))) {
-      return GestureDetector(
-        child: CachedNetworkImage(
-            imageUrl: image,
-            imageBuilder: (context, imageProvider) => Image(
-                  image: imageProvider,
-                  width: 300,
-                  height: 300,
-                ),
-            errorWidget: (context, url, dynamic error) =>
-                const Icon(Icons.error)),
-        onTap: () => {viewImageOnDialog(context: context, uri: image)},
-      );
-    } else {
-      return TextButton(
-          onPressed: () {
-            playMovieOnDialog(context: context, uri: image);
+          onTap: () =>
+          {
+            Fluttertoast.showToast(
+                msg: L10n.of(context)!.msg_sensitive_open_error)
           },
-          child: const Icon(Icons.play_circle_outlined));
-    }
+        );
+      } else if (!(sensitiveFlug["type"].contains("video"))) {
+        return GestureDetector(
+          child: CachedNetworkImage(
+              imageUrl: image,
+              imageBuilder: (context, imageProvider) =>
+                  Image(
+                    image: imageProvider,
+                    width: 300,
+                    height: 300,
+                  ),
+              errorWidget: (context, url, dynamic error) =>
+              const Icon(Icons.error)),
+          onTap: () => {viewImageOnDialog(context: context, uri: image)},
+        );
+      } else {
+        return TextButton(
+            onPressed: () {
+              playMovieOnDialog(context: context, uri: image);
+            },
+            child: const Icon(Icons.play_circle_outlined));
+      }
+    });
   }
 
   Widget showReply(feed) {
@@ -773,10 +840,11 @@ class _TimeLinePage extends State<TimelinePage> {
         future: Note().fetchReply(feed["id"]),
         builder: (context, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return const Text("リプライの取得に失敗しました(接続に失敗しました)");
+            return Text(
+                L10n.of(context)!.failed_conection_while_getting_replies);
           }
           if (!snap.hasData) {
-            return const Text("リプライの取得に失敗しました(データがありません)");
+            return Text(L10n.of(context)!.failed_getting_replies);
           }
           return ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
@@ -798,6 +866,7 @@ class _TimeLinePage extends State<TimelinePage> {
                 var instance = "";
                 if (feed["user"]["host"] != null) {
                   instance = '@${feed["user"]["host"]}';
+                  EmojiControl().saveHosts(feed["user"]["host"]);
                 }
                 if (author["name"] == null) {
                   author["name"] = "";
@@ -880,8 +949,8 @@ class _TimeLinePage extends State<TimelinePage> {
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
-                                            const Text(
-                                              "返信先",
+                                            Text(
+                                              L10n.of(context)!.reply_to,
                                               style: TextStyle(fontSize: 12.0),
                                               overflow: TextOverflow.clip,
                                             ),

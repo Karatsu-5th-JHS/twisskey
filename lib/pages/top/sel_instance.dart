@@ -11,6 +11,8 @@ import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:twisskey/timelinePage.dart';
 import 'package:uni_links/uni_links.dart';
+import 'package:uuid/uuid.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -128,6 +130,15 @@ class _LoginScreen extends State<LoginScreen> {
 saveHost(instance) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setString("host", instance);
+}
+
+auth(instance) {
+  saveHost(instance);
+  const uid = Uuid();
+  String url =
+      'https://$instance/miauth/${uid.v5(uid.v4(), 'tkngh')}?name=TKNGHAPP&permission=read:account,write:account,write:notes,read:notifications,write:notifications,read:blocks,write:blocks,read:drive,write:drive,read:favorites,write:favorites,read:following,write:following,read:messaging,write:messaging,read:mutes,write:mutes,write:reactions,write:votes,read:pages,write:pages,write:page-likes&callback=misskey://tkngh/?mode=auth';
+  final popUp = Uri.parse(url);
+  launchUrl(popUp);
 }
 
 Future<String> loginWithToken(String isSelectedItem, String T, context) async {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:twisskey/pages/config/language.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:twisskey/pages/config/sensitive.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Configuration extends StatefulWidget {
@@ -53,8 +54,7 @@ class _pageConfiguration extends State<Configuration> {
                 )),
             TextButton(
                 onPressed: () {
-                  Fluttertoast.showToast(
-                      msg: L10n.of(context)!.config_public_health);
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>const Sensitive()));
                 },
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,

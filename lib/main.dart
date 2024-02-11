@@ -68,7 +68,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     if (_locale == null) {
       // Localeがまだ読み込まれていない場合は、ローディングスピナーを表示します
-      return CircularProgressIndicator();
+      return const CircularProgressIndicator();
     } else {
       return MaterialApp(
         title: 'Twisskey',
@@ -92,7 +92,11 @@ class _MyAppState extends State<MyApp> {
             fontFamily: 'M PLUS 1'),
         themeMode: ThemeMode.system,
         home: const MyHomePage(title: 'Twisskey'),
-        supportedLocales: const [Locale('ja', 'JP')],
+        supportedLocales: const [
+          Locale('ja', 'JP'),
+          Locale('zh'),
+          Locale('en')
+        ],
       );
     }
   }
@@ -271,7 +275,7 @@ auth(instance) {
   launchUrl(popUp);
 }
 
-Future<String> loginProcess(sessionKey,context) async {
+Future<String> loginProcess(sessionKey, context) async {
   if (kDebugMode) {
     print("LoginProcess");
   }
@@ -327,9 +331,6 @@ Future<String> loginCheck() async {
 Future<Map<String, String>> getEmoji() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   var json = prefs.getString("emojis").toString();
-  if (kDebugMode) {
-    print("data$json");
-  }
   Map<String, String> res = Map.castFrom(jsonDecode(json));
   if (kDebugMode) {
     print(res);
