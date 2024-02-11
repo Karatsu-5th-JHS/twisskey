@@ -14,6 +14,7 @@ import 'package:twisskey/api/reaction.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:twisskey/api/renote.dart';
+import 'package:twisskey/config/sensitive.dart';
 import 'package:twisskey/main.dart';
 import 'package:twisskey/newTweet.dart';
 import 'package:twisskey/pages/config.dart';
@@ -97,6 +98,9 @@ class _TimeLinePage extends State<TimelinePage> {
             ],
           ),
           actions: [
+            IconButton(onPressed: (){
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const MyApp()));
+            }, icon: const Icon(Icons.refresh)),
             IconButton(
               icon: const Icon(Icons.download_for_offline_outlined),
               tooltip: 'Cache emojis from instances.',
@@ -721,7 +725,7 @@ class _TimeLinePage extends State<TimelinePage> {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: [for (var file in image) isNeedBlur(file)],
+                children: [for (var file in image) FutureBuilder(future: isNeedBlur(file), builder: (context,ss){if(ss.hasData){return ss.data!;}else{return Text("error");}})],
               ),
             )
           ],
@@ -760,64 +764,72 @@ class _TimeLinePage extends State<TimelinePage> {
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: [for (var file in image) isNeedBlur(file)],
+          children: [for (var file in image) FutureBuilder(future: isNeedBlur(file), builder: (context,ss){if(ss.hasData){return ss.data!;}else{return Text("error");}})],
         ),
       );
     }
   }
 
-  Widget isNeedBlur(sensitiveFlug) {
+  Future<Widget> isNeedBlur(sensitiveFlug) {
     var image = sensitiveFlug["url"];
     var sf = sensitiveFlug["isSensitive"];
     if (kDebugMode) {
       print("isSensitive:" + sensitiveFlug["type"]);
     }
-    if (sf == true && !(sensitiveFlug["type"].contains("video"))) {
-      if (kDebugMode) {
-        print("Blur skip");
+    return config_timeline_sensitive().get().then((e) {
+      if (e == true) {
+        sf = false;
       }
-      return GestureDetector(
-        child: Blur(
-          blur: 20,
-          child: SizedBox(
-            height: 300,
-            width: 300,
-            child: CachedNetworkImage(
-                imageUrl: image,
-                imageBuilder: (context, imageProvider) => Image(
-                      image: imageProvider,
-                      width: 300,
-                      height: 300,
-                    ),
-                errorWidget: (context, url, dynamic error) =>
-                    const Icon(Icons.error)),
+      if (sf == true && !(sensitiveFlug["type"].contains("video"))) {
+        if (kDebugMode) {
+          print("Blur skip");
+        }
+        return GestureDetector(
+          child: Blur(
+            blur: 20,
+            child: SizedBox(
+              height: 300,
+              width: 300,
+              child: CachedNetworkImage(
+                  imageUrl: image,
+                  imageBuilder: (context, imageProvider) =>
+                      Image(
+                        image: imageProvider,
+                        width: 300,
+                        height: 300,
+                      ),
+                  errorWidget: (context, url, dynamic error) =>
+                  const Icon(Icons.error)),
+            ),
           ),
-        ),
-        onTap: () => {
-          Fluttertoast.showToast(
-              msg: L10n.of(context)!.msg_sensitive_open_error)
-        },
-      );
-    } else if (!(sensitiveFlug["type"].contains("video"))) {
-      return GestureDetector(
-        child: CachedNetworkImage(
-            imageUrl: image,
-            imageBuilder: (context, imageProvider) => Image(
-                  image: imageProvider,
-                  width: 300,
-                  height: 300,
-                ),
-            errorWidget: (context, url, dynamic error) =>
-                const Icon(Icons.error)),
-        onTap: () => {viewImageOnDialog(context: context, uri: image)},
-      );
-    } else {
-      return TextButton(
-          onPressed: () {
-            playMovieOnDialog(context: context, uri: image);
+          onTap: () =>
+          {
+            Fluttertoast.showToast(
+                msg: L10n.of(context)!.msg_sensitive_open_error)
           },
-          child: const Icon(Icons.play_circle_outlined));
-    }
+        );
+      } else if (!(sensitiveFlug["type"].contains("video"))) {
+        return GestureDetector(
+          child: CachedNetworkImage(
+              imageUrl: image,
+              imageBuilder: (context, imageProvider) =>
+                  Image(
+                    image: imageProvider,
+                    width: 300,
+                    height: 300,
+                  ),
+              errorWidget: (context, url, dynamic error) =>
+              const Icon(Icons.error)),
+          onTap: () => {viewImageOnDialog(context: context, uri: image)},
+        );
+      } else {
+        return TextButton(
+            onPressed: () {
+              playMovieOnDialog(context: context, uri: image);
+            },
+            child: const Icon(Icons.play_circle_outlined));
+      }
+    });
   }
 
   Widget showReply(feed) {
