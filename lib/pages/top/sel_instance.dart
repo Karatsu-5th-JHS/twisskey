@@ -120,6 +120,7 @@ class _LoginScreen extends State<LoginScreen> {
   Widget loginButton(instance) {
     return ElevatedButton(
         onPressed: () {
+          Fluttertoast.showToast(msg: instance + "で認証を開始します");
           auth(instance);
         },
         //login
