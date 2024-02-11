@@ -114,7 +114,7 @@ class _Reply extends State<Reply> {
             child: ConstrainedBox(
                 constraints: BoxConstraints(
                     maxWidth: sizeWidth - 20, maxHeight: sizeHeight),
-                child: Column(children: [
+                child: SingleChildScrollView(child: Column(children: [
                   showReply(widget.id),
                   TextField(
                     controller: t_reply,
@@ -142,7 +142,7 @@ class _Reply extends State<Reply> {
                           )
                         ],
                       ))
-                ]))));
+                ])))));
   }
 
   Future doTweet(String? tweet, List<String> fileIds, rs, rf) async {

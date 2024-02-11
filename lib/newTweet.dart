@@ -92,7 +92,7 @@ class _newTweet extends State<newTweet> {
             child: ConstrainedBox(
                 constraints: BoxConstraints(
                     maxWidth: sizeWidth - 20, maxHeight: sizeHeight),
-                child: Column(children: [
+                child: SingleChildScrollView(child: Column(children: [
                   TextField(
                     controller: t_tweet,
                     autofocus: true,
@@ -122,7 +122,7 @@ class _newTweet extends State<newTweet> {
                           )
                         ],
                       ))
-                ]))));
+                ])))));
   }
 
   Future doTweet(String? tweet, List<String> fileIds, l1) async {
