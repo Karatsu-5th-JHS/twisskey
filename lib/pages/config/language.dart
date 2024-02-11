@@ -69,6 +69,8 @@ class _Language extends State<Language> {
             ],
             onChanged: (value) {
               _changeLanguage(value.toString());
+              Navigator.pop(context);
+              Navigator.pop(context);
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => const MyApp()));
             },
