@@ -40,6 +40,7 @@
   "notion_new_tweets": "’s new Tweets",
   "notion_follow_request_accepted": "They have accepted your follow request.",
   "notion_exceptions": "Unrecognizable notification",
+  "config_sensivive_show_on_timeline": "センシティブなファイルをタイムライン上に表示する",
 
   "guide_input_instanse_url": "Input the URL of the instance you would like to log in:",
   "guide_label_server_host":"Server host:",

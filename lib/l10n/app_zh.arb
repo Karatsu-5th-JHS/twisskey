@@ -40,6 +40,7 @@
   "notion_new_tweets": "的新推文通知",
   "notion_follow_request_accepted": "您的关注已被批准",
   "notion_exceptions": "无法识别该通知",
+  "config_sensivive_show_on_timeline": "在时间轴上显示敏感文件",
 
   "guide_input_instanse_url": "输入服务器 URL",
   "guide_label_server_host":"服务器主机",
