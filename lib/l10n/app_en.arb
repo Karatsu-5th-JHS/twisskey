@@ -8,12 +8,12 @@
   "logout": "Log out",
 
   "token": "token",
-  "tweet": "Tweets",
-  "yes": "yes",
-  "no": "no",
-  "reply": "replies",
+  "tweet": "Tweet",
+  "yes": "Yes",
+  "no": "No",
+  "reply": "Reply",
   "reply_list": "Replies",
-  "reply_to": "Reply to:",
+  "reply_to": "To be Replied",
   "notion": "Notifications",
   "search": "Search",
   "push_menu": "Other Menu",
@@ -31,7 +31,7 @@
   "about_config_privacy_and_safety": "You can configrate your account safety in a community.",
   "failed_getting": "Failed to get",
   "failed_fetching": "Failed to fetch",
-  "explaination_title_about_this_app": "<center>$[x3 **about Twisskey**]</center>\n$[x2 Twisskey is a Twitter-like Misskey client application powered by Flutter.\n\n\nThis version: ",
+  "explaination_title_about_this_app": "<center>$[x3 **About Twisskey**]</center>\n$[x2 Twisskey is a Twitter-like Misskey client application powered by Flutter.\n\n\nThis version: ",
   "explaination_about_this_app": "\n\nThis application uses [Mfm_parser](https://pub.dev/packages/mfm_parser), which is used on **Miria**.]\n\nApplication developped by: Tokunaga Hiroto.\nFor: Android 5.2- and iOS 12-.\n\nLanguage: Flutter\n\nDev. env: Android Studio 2023.1.1 on Windows 11\nGithub: [唐津第五中学校/Twisskey](https://github.com/Karatsu-5th-JHS/twisskey)",
   "getting_replies": "Getting replies to this Tweet...",
   "failed_getting_replies": "Failed to get replies. There were no data.",
@@ -61,5 +61,5 @@
   "msg_failed_tweet": "Failed to Tweet",
 
   "dialog_alertReReTweet_title": "Re-Retweet?",
-  "dialog_alertReReTweet_body":"You have Retweeted this Tweet. Will you Retweet it again?"
+  "dialog_alertReReTweet_body":"You have Retweeted this Tweet before. Will you Retweet it again?"
 }
