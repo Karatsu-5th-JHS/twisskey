@@ -24,6 +24,7 @@
   "config_public_health": "Public Health",
   "config_privacy_and_safety": "Privacy and Safety",
   "about_this_app": "About this app",
+  "note_reactions_list": "Reactions",
 
   "experimental": "This function is experimental. No warranties against any defects.",
   "about_config_language": "You can choose a language to use on Twisskey.",
@@ -33,6 +34,7 @@
   "failed_getting": "Failed to get",
   "failed_fetching": "Failed to fetch",
   "failed_getting_tl": "Failed to get Timeline",
+  "failed_getting_account_data": "Failed to get account data",
   "tl_retweet": "$tu Retweeted",
   "explaination_title_about_this_app": "<center>$[x3 **About Twisskey**]</center>\n$[x2 Twisskey is a Twitter-like Misskey client application powered by Flutter.\n\n\nThis version: ",
   "explaination_about_this_app": "\n\nThis application uses [Mfm_parser](https://pub.dev/packages/mfm_parser), which is used on **Miria**.]\n\nApplication developped by: Tokunaga Hiroto.\nFor: Android 5.2- and iOS 12-.\n\nLanguage: Flutter\n\nDev. env: Android Studio 2023.1.1 on Windows 11\nGithub: [唐津第五中学校/Twisskey](https://github.com/Karatsu-5th-JHS/twisskey)",
@@ -55,6 +57,7 @@
   "msg_login": "You have logged in",
   "msg_retweeted": "You have Retweeted",
   "msg_react": "Added the Reaction",
+  "msg_react_same": "You have already added this Reaction",
   "msg_sensitive_open_error": "To see NSFW files, open this Tweet.",
   "msg_successed_reply": "Your reply has been sent",
   "msg_failed_reply": "Failed to reply",
