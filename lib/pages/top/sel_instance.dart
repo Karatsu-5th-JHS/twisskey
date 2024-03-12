@@ -80,7 +80,7 @@ class _LoginScreen extends State<LoginScreen> {
                       label: Text(L10n.of(context)!.guide_label_server_host),
                       prefixText: "https://",
                       suffixText: "/",
-                      prefixIcon: Icon(Icons.dns_outlined)),
+                      prefixIcon: const Icon(Icons.dns_outlined)),
                 )),
             Container(
                 padding: const EdgeInsets.all(8),
@@ -96,7 +96,7 @@ class _LoginScreen extends State<LoginScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  child: loginButton(t_instance.text),
+                  child: loginButton(t_instance),
                 ),
                 Container(
                   padding: const EdgeInsets.all(8),
@@ -120,8 +120,8 @@ class _LoginScreen extends State<LoginScreen> {
   Widget loginButton(instance) {
     return ElevatedButton(
         onPressed: () {
-          Fluttertoast.showToast(msg: instance + "で認証を開始します");
-          auth(instance);
+          Fluttertoast.showToast(msg: instance.text + "で認証を開始します");
+          auth(instance.text);
         },
         //login
         child: Text(L10n.of(context)!.login));

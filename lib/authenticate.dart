@@ -40,6 +40,9 @@ class Authenticate extends StatelessWidget {
     }
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final instance = prefs.getString("host");
+    if(instance == ""){
+      print("null instance");
+    }
     final Uri uri = Uri.parse("https://$instance/api/miauth/$sessionKey/check");
     final response = await http.post(uri);
     final String res = response.body;
