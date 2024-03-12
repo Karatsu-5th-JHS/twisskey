@@ -88,10 +88,9 @@ class _newTweet extends State<newTweet> {
             )
           ],
         ),
-        body: Center(
-            child: ConstrainedBox(
+        body: Container(padding: const EdgeInsets.all(5),child: ConstrainedBox(
                 constraints: BoxConstraints(
-                    maxWidth: sizeWidth - 20, maxHeight: sizeHeight),
+                    maxWidth: sizeWidth, maxHeight: sizeHeight),
                 child: SingleChildScrollView(child: Column(children: [
                   TextField(
                     controller: t_tweet,
