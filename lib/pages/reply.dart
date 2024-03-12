@@ -157,7 +157,7 @@ class _Reply extends State<Reply> {
     if (kDebugMode) {
       print(fileIds.length);
     }
-    if (fileIds.length == 0) {
+    if (fileIds.isEmpty) {
       if (kDebugMode) {
         print("文のみ");
       }
@@ -180,10 +180,10 @@ class _Reply extends State<Reply> {
     Map<String, dynamic> map = jsonDecode(res);
     print(map["createdNote"]);
     if (map["createdNote"] == null) {
-      Fluttertoast.showToast(msg: rs, fontSize: 18);
+      Fluttertoast.showToast(msg: rf, fontSize: 18);
       print(map);
     } else {
-      Fluttertoast.showToast(msg: rf, fontSize: 18);
+      Fluttertoast.showToast(msg: rs, fontSize: 18);
     }
   }
 
