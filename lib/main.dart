@@ -186,13 +186,13 @@ class _MyHomePageState extends State<MyHomePage> {
             } else {
               return Container(
                 alignment: Alignment.center,
-                child: CircularProgressIndicator(),
+                child: const CircularProgressIndicator(),
               );
             }
           } else {
             return Container(
               alignment: Alignment.center,
-              child: CircularProgressIndicator(),
+              child: const CircularProgressIndicator(),
             );
           }
         },

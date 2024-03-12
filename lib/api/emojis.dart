@@ -1,21 +1,42 @@
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:twisskey/api/notify/service.dart';
+
 class EmojiControl {
   late Map<String, String> emojiList = {};
+  /*double currentProgress(int index) {
+    //fetch the current progress,
+    //its in a list because we might want to download
+    // multiple files at the same time,
+    // so this makes sure the correct download progress
+    // is updated.
+    try {
+      return _progressList[index];
+    } catch (e) {
+      _progressList.add(0.0);
+      return 0;
+    }
+  }*/
 
   void firstAddEmojis() {
+    NotificationService notificationService = NotificationService();
+    int count = 0;
     Future(() async {
-      Fluttertoast.showToast(msg: "絵文字の取得を開始しました");
       SharedPreferences instance = await SharedPreferences.getInstance();
       String? tmp = instance.getString("hosts").toString();
       List<String> hosts = json.decode(tmp).cast<String>().toList();
+      int total = hosts.length;
       for (var host in hosts) {
+        count = count + 1;
+        notificationService.createNotification(
+            100, ((count / total) * 100).toInt(), 0, host,true,"processing...");
         final response = await http.get(
             Uri(scheme: "https", host: host, pathSegments: ["api", "emojis"]));
         if(response.statusCode == 404){
+          continue;
+        }else if(response.statusCode == 405){
           continue;
         }
         emojiList.addAll(Map.fromEntries((jsonDecode(response.body)["emojis"]
@@ -32,7 +53,8 @@ class EmojiControl {
           .map((e) => MapEntry(e["name"] as String, e["url"] as String))));
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString("emojis", jsonEncode(emojiList).toString());
-      Fluttertoast.showToast(msg: "絵文字の取得が完了しました");
+      notificationService.cancel(0);
+      notificationService.createNotification(100, 100, 1, "絵文字のダウンロードが完了",false,"処理は正常に完了しました");
     });
   }
 

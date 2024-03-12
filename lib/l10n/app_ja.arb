@@ -29,8 +29,11 @@
   "about_config_language": "Twisskeyで利用する言語の設定をします",
   "about_config_public_health": "電車の中でアプリを開いても恥ずかしくないように設定します",
   "about_config_privacy_and_safety": "アカウントに関するコミュニティでの安全性を設定します",
+  "loading": "読み込み中です",
   "failed_getting": "取得できません",
   "failed_fetching": "取得に失敗しました",
+  "failed_getting_tl": "タイムラインの取得に失敗しました",
+  "tl_retweet": "$tuさんがリツイートしました",
   "explaination_title_about_this_app": "<center>$[x3 **about Twisskey**]</center>\n$[x2 TwisskeyはFlutterで作成されたTwitter風Misskeyクライアントアプリです。\n\n\n現在のバージョン: ",
   "explaination_about_this_app": "\n\nこのアプリは、このアプリは、**Miria**で使われている[Mfm_parser](https://pub.dev/packages/mfm_parser)を利用しています。]\n\nApplication created by: 德永皓斗\n対応OS: Android 5.2以上 / iOS 12以上\n\nLanguage: Flutter\n\nDev. env: Android Studio 2023.1.1 on Windows 11\nGithub: [唐津第五中学校/Twisskey](https://github.com/Karatsu-5th-JHS/twisskey)",
   "getting_replies": "リプライの取得中です",
@@ -50,6 +53,7 @@
 
   "failed_login": "ログインできませんでした",
   "msg_login": "ログインしました",
+  "msg_react": "リアクションしました",
   "msg_retweeted": "リツイートしました",
   "msg_sensitive_open_error": "センシティブ設定されたファイルを見るにはツイートを開いてください",
   "msg_successed_reply": "リプライしました",
@@ -59,6 +63,7 @@
   "msg_fullscreen": "フルスクリーンモードを解除するには、下にスクロールしてボタンを押すか、閉じるを押して再生を終了します",
   "msg_tweet": "ツイートしました",
   "msg_failed_tweet": "ツイートに失敗しました",
+  "msg_change_tweet_publish":  "ツイートの公開先を変更しました",
 
   "dialog_alertReReTweet_title": "再リツイート警告",
   "dialog_alertReReTweet_body":"このツイートはすでにリツイートしています。再リツイートしますか？"
