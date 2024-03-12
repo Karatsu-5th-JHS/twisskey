@@ -66,6 +66,7 @@ dependencies:
   connectivity_plus: ^2.3.8
   flutter_localization: ^0.2.0
   flutter_native_splash: ^2.3.10
+  flutter_local_notifications: ^17.0.0
 
 dev_dependencies:
   flutter_test:
