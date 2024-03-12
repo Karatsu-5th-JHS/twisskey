@@ -59,6 +59,7 @@
   "msg_fullscreen": "要退出全屏模式，请向下滚动并按 按钮，或按关闭结束播放。",
   "msg_tweet": "我发了推文",
   "msg_failed_tweet": "我无法发推文",
+  "msg_change_tweet_publish":  "更改了推文发布目的地",
 
   "dialog_alertReReTweet_title": "重新发布警告",
   "dialog_alertReReTweet_body":"这条推文已经被转发。 您想转发吗？"

@@ -59,6 +59,7 @@
   "msg_fullscreen": "フルスクリーンモードを解除するには、下にスクロールしてボタンを押すか、閉じるを押して再生を終了します",
   "msg_tweet": "ツイートしました",
   "msg_failed_tweet": "ツイートに失敗しました",
+  "msg_change_tweet_publish":  "ツイートの公開先を変更しました",
 
   "dialog_alertReReTweet_title": "再リツイート警告",
   "dialog_alertReReTweet_body":"このツイートはすでにリツイートしています。再リツイートしますか？"

@@ -59,6 +59,7 @@
   "msg_fullscreen": "To release full-screen mode, scroll down and tap the button, or tap “Close” to stop playing.",
   "msg_tweet": "Your Tweet has been published",
   "msg_failed_tweet": "Failed to Tweet",
+  "msg_change_tweet_publish":  "Changed tweet publication destination",
 
   "dialog_alertReReTweet_title": "Re-Retweet?",
   "dialog_alertReReTweet_body":"You have Retweeted this Tweet. Will you Retweet it again?"
