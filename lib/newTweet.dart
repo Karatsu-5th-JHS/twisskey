@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -22,7 +23,8 @@ class _newTweet extends State<newTweet> {
   String? tweets = "";
   late String? body = "";
   TextEditingController t_tweet = TextEditingController();
-
+  IconData publishStatus = Icons.lock_open_outlined;
+  bool publishStatusBool = false;
   void updateImage(id, url) {
     setState(() {
       fileIds.add(id);
@@ -74,6 +76,15 @@ class _newTweet extends State<newTweet> {
         appBar: AppBar(
           title: Text(L10n.of(context)!.tweet),
           actions: [
+            IconButton(onPressed: ()=>{Fluttertoast.showToast(msg: L10n.of(context)!.msg_change_tweet_publish),setState(() {
+              if(publishStatusBool == false) {
+                publishStatus = Icons.lock_outlined;
+                publishStatusBool = true;
+              }else{
+                publishStatus = Icons.lock_open_outlined;
+                publishStatusBool = false;
+              }
+            })}, icon: const Icon(Icons.key)),
             OutlinedButton(
               onPressed: () => {
                 doTweet(t_tweet.text, fileIds, L10n.of(context)),
@@ -102,8 +113,6 @@ class _newTweet extends State<newTweet> {
                       hintText: L10n.of(context)!.guide_new_tweet,
                     ),
                   ),
-                  if (imageState != "") Image.network(imageState),
-                  Text(body != null ? "" : ""),
                   SizedBox(
                       height: 30,
                       child: Row(
@@ -111,16 +120,19 @@ class _newTweet extends State<newTweet> {
                           IconButton(
                             onPressed: () => {
                               selectImage().then((value) => () {
-                                    if (kDebugMode) {
-                                      print("select?");
-                                    }
-                                  })
+                                if (kDebugMode) {
+                                  print("select?");
+                                }
+                              })
                             },
                             icon: const Icon(Icons.image),
                             color: Colors.blue,
-                          )
+                          ),
+                          Icon(publishStatus)
                         ],
-                      ))
+                      )),
+                  if (imageState != "") Image.network(imageState),
+                  Text(body != null ? "" : ""),
                 ])))));
   }
 
@@ -129,6 +141,10 @@ class _newTweet extends State<newTweet> {
     var host = await sysAccount().getHost();
     final Uri uri = Uri.parse("https://$host/api/notes/create");
     var body;
+    var v = "public";
+    if(publishStatusBool == true){
+      v = "followers";
+    }
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       "charset": 'UTF-8'
@@ -140,7 +156,7 @@ class _newTweet extends State<newTweet> {
       if (kDebugMode) {
         print("文のみ");
       }
-      body = {"text": tweet, "i": token};
+      body = {"text": tweet, "i": token, "visibility": v};
     } else {
       if (tweet != "" && tweet != null) {
         if (kDebugMode) {
@@ -149,9 +165,9 @@ class _newTweet extends State<newTweet> {
         if (kDebugMode) {
           print("tweet 含む");
         }
-        body = {"text": tweet, "i": token, "fileIds": fileIds};
+        body = {"text": tweet, "i": token, "fileIds": fileIds, "visibility": v};
       } else {
-        body = {"i": token, "fileIds": fileIds};
+        body = {"i": token, "fileIds": fileIds, "visibility": v};
       }
     }
     final response =
