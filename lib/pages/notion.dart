@@ -11,6 +11,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'package:http/http.dart' as http;
 import 'package:twisskey/pages/note.dart';
 import 'package:twisskey/timelinePage.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class notion extends StatefulWidget {
   const notion({Key? key}) : super(key: key);
@@ -18,25 +19,23 @@ class notion extends StatefulWidget {
   @override
   State<notion> createState() => _notion();
 }
+
 class _notion extends State<notion> {
-  Map<String,String> emojiList = {};
+  Map<String, String> emojiList = {};
   final focusNode = FocusNode();
   late Widget icons;
   late ImageProvider notionImage;
 
   late Future<dynamic> _notificationFuture;
 
-
-
   @override
-  void initState(){
+  void initState() {
     super.initState();
     loadEmoji();
     _notificationFuture = _notificationLoading();
   }
 
-
-  Future loadEmoji() async{
+  Future loadEmoji() async {
     emojiList = await getEmoji();
   }
 
@@ -45,8 +44,8 @@ class _notion extends State<notion> {
     var host = await sysAccount().getHost();
     final Uri uri = Uri.parse("https://$host/api/i/notifications");
     Map<String, String> headers = {'content-type': 'application/json'};
-    final response = await http.post(
-        uri, headers: headers, body: json.encode({"i": token, "limit": 100}));
+    final response = await http.post(uri,
+        headers: headers, body: json.encode({"i": token, "limit": 100}));
     final String res = response.body;
     if (kDebugMode) {
       print("Request Timeline: $res");
@@ -58,108 +57,147 @@ class _notion extends State<notion> {
     }*/
     return dj;
   }
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("通知")
-      ),
-      bottomNavigationBar: BottomAppBar(child: Center(child: Padding( padding: const EdgeInsets.symmetric(horizontal: 1.0),
-          child:Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(onPressed: (){Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>const TimelinePage()));}, icon: const Icon(Icons.home)),
-              IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushSearch",fontSize: 18);}, icon: const Icon(Icons.search)),
-              IconButton(onPressed: (){
-                Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>const notion()));
-              }, icon: const Icon(Icons.notifications)),
-              IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushMes",fontSize: 18);}, icon: const Icon(Icons.mail)),
-              IconButton(onPressed: (){Fluttertoast.showToast(msg: "PushMenu",fontSize: 18);}, icon: const Icon(Icons.menu))
-            ],
-          ))),),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          setState((){
-            _notificationFuture = _notificationLoading();
-          });
-        },
-      child: FutureBuilder<dynamic> (
-          future: _notificationFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasData) {
-                return ListView.separated(
-                    itemCount: snapshot.data!.length,
-                    separatorBuilder: (BuildContext context, int index) => Divider(color: Colors.grey.shade400,),
-                    itemBuilder: (context, index){
-                      var feed = snapshot.data![index];
-                      if(feed == null){
-                        exit(0);
-                      }
-                      //タイプ判別
-                      var matsubi = "";
-                      var user = "";
-                      var noteText = "";
-                      if(feed['type']=="app") {
-                        matsubi = feed["body"];
-                        user = feed["header"];
-                      }
 
-                      if(feed["user"]==null && user == ""){
-                        user = "NAME FETCH IS FAILED";
-                      }else if(feed["user"]!=null && user==""){
-                        if(feed["user"]["name"] == null){
-                          user = feed["user"]["username"];
-                        }else {
-                          user = feed["user"]["name"];
-                        }
-                      }
-                      var id = "0x0000";
-                      if(feed['type']=="reaction") {
-                        if(feed['note']["text"] != null){
-                          noteText = feed['note']["text"];
-                        }else{
-                          noteText = "画像のみの投稿です。";
-                        }
-                        matsubi = noteText;
-                        icons = const Icon(Icons.add);
-                        id = feed["note"]["id"];
-                      }else if(feed['type']=="renote"){
-                        if(feed['note']["renote"]["text"] != null){
-                          noteText = feed['note']["renote"]["text"];
-                        }else{
-                          noteText = "画像のみの投稿です。";
-                        }
-                        matsubi = noteText;
-                        icons = const Icon(Icons.repeat);
-                        id = feed["note"]["id"];
-                      }else if(feed['type']=="note") {
-                        matsubi = "$userの新しいツイート通知";
-                        icons = const Icon(Icons.comment_outlined);
-                        id = feed["note"]["id"];
-                      }else if(feed["type"]=="followRequestAccepted"){
-                        matsubi = "フォローが承認されました";
-                        icons = const Icon(Icons.check_circle_outlined);
-                      }else{
-                        matsubi = "通知を認識できませんでした";
-                        icons = const Icon(Icons.question_mark);
-                      }
-                      final text = matsubi;
-                      final createdAt = DateTime.parse(feed["createdAt"]).toLocal();
-                      if (kDebugMode) {
-                        print("$user:$text");
-                      }
-                      return Column(children: [
-                        InkWell(
-                          onTap: () => {
-                            Navigator.push(context,MaterialPageRoute(builder: (context)=>viewNote(noteId: id)))
-                          },
-                          child: Container(
-                              padding: const EdgeInsets.only(left: 8.0,bottom: 8.0,right:8.0),
-                              child: Column(
-                                  children:[
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(L10n.of(context)!.notion)),
+      bottomNavigationBar: BottomAppBar(
+        child: Center(
+            child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 1.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const TimelinePage()));
+                        },
+                        icon: const Icon(Icons.home)),
+                    IconButton(
+                        onPressed: () {
+                          Fluttertoast.showToast(
+                              msg: "PushSearch", fontSize: 18);
+                        },
+                        icon: const Icon(Icons.search)),
+                    IconButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const notion()));
+                        },
+                        icon: const Icon(Icons.notifications)),
+                    IconButton(
+                        onPressed: () {
+                          Fluttertoast.showToast(msg: "PushMes", fontSize: 18);
+                        },
+                        icon: const Icon(Icons.mail)),
+                    IconButton(
+                        onPressed: () {
+                          Fluttertoast.showToast(msg: "PushMenu", fontSize: 18);
+                        },
+                        icon: const Icon(Icons.menu))
+                  ],
+                ))),
+      ),
+      body: RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+              _notificationFuture = _notificationLoading();
+            });
+          },
+          child: FutureBuilder<dynamic>(
+              future: _notificationFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasData) {
+                    return ListView.separated(
+                        itemCount: snapshot.data!.length,
+                        separatorBuilder: (BuildContext context, int index) =>
+                            Divider(
+                              color: Colors.grey.shade400,
+                            ),
+                        itemBuilder: (context, index) {
+                          var feed = snapshot.data![index];
+                          if (feed == null) {
+                            exit(0);
+                          }
+                          //タイプ判別
+                          var matsubi = "";
+                          var user = "";
+                          var noteText = "";
+                          if (feed['type'] == "app") {
+                            matsubi = feed["body"];
+                            user = feed["header"];
+                          }
+
+                          if (feed["user"] == null && user == "") {
+                            user = "NAME FETCH IS FAILED";
+                          } else if (feed["user"] != null && user == "") {
+                            if (feed["user"]["name"] == null) {
+                              user = feed["user"]["username"];
+                            } else {
+                              user = feed["user"]["name"];
+                            }
+                          }
+                          var id = "0x0000";
+                          if (feed['type'] == "reaction") {
+                            if (feed['note']["text"] != null) {
+                              noteText = feed['note']["text"];
+                            } else {
+                              noteText = L10n.of(context)!.notion_only_images;
+                            }
+                            matsubi = noteText;
+                            icons = const Icon(Icons.add);
+                            id = feed["note"]["id"];
+                          } else if (feed['type'] == "renote") {
+                            if (feed['note']["renote"]["text"] != null) {
+                              noteText = feed['note']["renote"]["text"];
+                            } else {
+                              noteText = L10n.of(context)!.notion_only_images;
+                            }
+                            matsubi = noteText;
+                            icons = const Icon(Icons.repeat);
+                            id = feed["note"]["id"];
+                          } else if (feed['type'] == "note") {
+                            matsubi =
+                                user + L10n.of(context)!.notion_new_tweets;
+                            icons = const Icon(Icons.comment_outlined);
+                            id = feed["note"]["id"];
+                          } else if (feed["type"] == "followRequestAccepted") {
+                            matsubi = L10n.of(context)!
+                                .notion_follow_request_accepted;
+                            icons = const Icon(Icons.check_circle_outlined);
+                          } else {
+                            matsubi = L10n.of(context)!.notion_exceptions;
+                            icons = const Icon(Icons.question_mark);
+                          }
+                          final text = matsubi;
+                          final createdAt =
+                              DateTime.parse(feed["createdAt"]).toLocal();
+                          if (kDebugMode) {
+                            print("$user:$text");
+                          }
+                          return Column(children: [
+                            InkWell(
+                              onTap: () => {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            viewNote(noteId: id)))
+                              },
+                              child: Container(
+                                  padding: const EdgeInsets.only(
+                                      left: 8.0, bottom: 8.0, right: 8.0),
+                                  child: Column(children: [
                                     Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         CircleAvatar(
                                           radius: 24,
@@ -169,32 +207,47 @@ class _notion extends State<notion> {
                                         Flexible(
                                           child: Column(
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children:[
+                                                CrossAxisAlignment.start,
+                                            children: [
                                               Row(
                                                 mainAxisAlignment:
-                                                MainAxisAlignment. spaceAround,
+                                                    MainAxisAlignment
+                                                        .spaceAround,
                                                 children: [
                                                   Flexible(
                                                       child: Mfm(
                                                           mfmText: "**$user**",
-                                                          emojiBuilder: (context, emoji, style) {
-                                                            final emojiData = emojiList[emoji];
-                                                            if (emojiData == null) {
-                                                              return Text.rich(TextSpan(text: emoji, style: style));
+                                                          emojiBuilder:
+                                                              (context, emoji,
+                                                                  style) {
+                                                            final emojiData =
+                                                                emojiList[
+                                                                    emoji];
+                                                            if (emojiData ==
+                                                                null) {
+                                                              return Text.rich(
+                                                                  TextSpan(
+                                                                      text:
+                                                                          emoji,
+                                                                      style:
+                                                                          style));
                                                             } else {
                                                               // show emojis if emoji data found
-                                                              return Image.network(
+                                                              return Image
+                                                                  .network(
                                                                 emojiData,
-                                                                height: (style?.fontSize ?? 1) * 2,
+                                                                height:
+                                                                    (style?.fontSize ??
+                                                                            1) *
+                                                                        2,
                                                               );
                                                             }
-                                                          })
-                                                  ),
-
+                                                          })),
                                                   Text(
-                                                    timeago.format(createdAt, locale: "ja"),
-                                                    style: const TextStyle(fontSize: 12.0),
+                                                    timeago.format(createdAt,
+                                                        locale: "ja"),
+                                                    style: const TextStyle(
+                                                        fontSize: 12.0),
                                                     overflow: TextOverflow.clip,
                                                   ),
                                                 ],
@@ -202,26 +255,28 @@ class _notion extends State<notion> {
                                               const SizedBox(height: 10.0),
                                               /*Text(text,
                                             style: const TextStyle(fontSize: 15.0)),*/
-                                              Text(matsubi,overflow: TextOverflow.ellipsis,),
+                                              Text(
+                                                matsubi,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ],
                                           ),
                                         ),
                                       ],
                                     ),
                                   ])),
-                        ),
-                        const Divider(height: 1, thickness: 1, color: Colors.white12)
-                      ]);
-                    }
-                );
-              }else{
-                return const Text("error has occred");
-              }
-          }else{
-              return const Center(child: CircularProgressIndicator());
-            }
-        })
-      ),
+                            ),
+                            const Divider(
+                                height: 1, thickness: 1, color: Colors.white12)
+                          ]);
+                        });
+                  } else {
+                    return const Text("error has occred");
+                  }
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              })),
     );
   }
 }
